@@ -1,0 +1,114 @@
+package org.neo4j.rest.graphdb;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.graphdb.*;
+
+import java.net.URI;
+import java.util.Date;
+
+public class TestRestGraphDb {
+    private static GraphDatabaseService graphDb;
+
+    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
+
+    @BeforeClass
+    public static void startDb() throws Exception {
+        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
+    }
+
+    @AfterClass
+    public static void shutdownDb() {
+        graphDb.shutdown();
+    }
+
+    @Test
+    public void testGetRefNode() {
+        Node refNode = graphDb.getReferenceNode();
+        Node nodeById = graphDb.getNodeById( 0 );
+        Assert.assertEquals( refNode, nodeById );
+    }
+
+    @Test
+    public void testCreateNode() {
+        Node node = graphDb.createNode();
+        Assert.assertEquals( node, graphDb.getNodeById( node.getId() ) );
+    }
+
+    @Test
+    public void testSetProperty() {
+        graphDb.getReferenceNode().setProperty( "name", "test" );
+        Node node = graphDb.getReferenceNode();
+        Assert.assertEquals( "test", node.getProperty( "name" ) );
+    }
+
+    @Test
+    public void testRemoveProperty() {
+        Node node = graphDb.getReferenceNode();
+        node.setProperty( "name", "test" );
+        Assert.assertEquals( "test", node.getProperty( "name" ) );
+        node.removeProperty( "name" );
+        Assert.assertEquals( false, node.hasProperty( "name" ) );
+    }
+
+    @Test
+    public void testCreateRelationship() {
+        Node refNode = graphDb.getReferenceNode();
+        Node node = graphDb.createNode();
+        Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
+        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Assert.assertNotNull( "found relationship", foundRelationship );
+        Assert.assertEquals( "same relationship", rel, foundRelationship );
+        Assert.assertThat( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), new IsRelationshipToNodeMatcher( refNode, node ) );
+        Assert.assertThat( refNode.getRelationships( Direction.OUTGOING ), new IsRelationshipToNodeMatcher( refNode, node ) );
+        Assert.assertThat( refNode.getRelationships( Direction.BOTH ), new IsRelationshipToNodeMatcher( refNode, node ) );
+        Assert.assertThat( refNode.getRelationships( Type.TEST ), new IsRelationshipToNodeMatcher( refNode, node ) );
+    }
+
+    @Test
+    public void testSetPropertyOnRelationship() {
+        Node refNode = graphDb.getReferenceNode();
+        Node node = graphDb.createNode();
+        Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
+        rel.setProperty( "name", "test" );
+        Assert.assertEquals( "test", rel.getProperty( "name" ) );
+        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
+    }
+
+    @Test
+    public void testRemovePropertyOnRelationship() {
+        Node refNode = graphDb.getReferenceNode();
+        Node node = graphDb.createNode();
+        Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
+        rel.setProperty( "name", "test" );
+        Assert.assertEquals( "test", rel.getProperty( "name" ) );
+        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
+        rel.removeProperty( "name" );
+        Assert.assertEquals( false, rel.hasProperty( "name" ) );
+        Relationship foundRelationship2 = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Assert.assertEquals( false, foundRelationship2.hasProperty( "name" ) );
+    }
+
+    @Test
+    public void testBasic() {
+        Node refNode = graphDb.getReferenceNode();
+        Node node = graphDb.createNode();
+        Relationship rel = refNode.createRelationshipTo( node,
+                DynamicRelationshipType.withName( "TEST" ) );
+        rel.setProperty( "date", new Date().getTime() );
+        node.setProperty( "name", "Mattias test" );
+        refNode.createRelationshipTo( node,
+                DynamicRelationshipType.withName( "TEST" ) );
+
+        for ( Relationship relationship : refNode.getRelationships() ) {
+            System.out.println( "rel prop:" + relationship.getProperty( "date", null ) );
+            Node endNode = relationship.getEndNode();
+            System.out.println( "node prop:" + endNode.getProperty( "name", null ) );
+        }
+    }
+
+}
