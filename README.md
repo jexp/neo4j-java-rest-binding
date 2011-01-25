@@ -11,14 +11,15 @@ Open issues:
 * support for exposing server extensions - via an interface based proxy
 
 Usage:
-`
+
+<pre>
 GraphDatabaseService gds = new RestGraphDatabase(new URI("http://localhost:7474/db/data"));
 GraphDatabaseService gds = new RestGraphDatabase(new URI("http://localhost:7474/db/data"),username,password);
 
 <bean id="graphDbService" class="org.neo4j.rest.graphdb.RestGraphDatabase" destroy-method="shutdown">
     <constructor-arg index="0" value="http://localhost:7474/db/data" />
 </bean>
-`
+</pre>
 
 Please note: Transactions are not supported over this API.
 
