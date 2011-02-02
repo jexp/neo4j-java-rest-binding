@@ -38,22 +38,6 @@ public class TestRestGraphDb {
     }
 
     @Test
-    public void testSetProperty() {
-        graphDb.getReferenceNode().setProperty( "name", "test" );
-        Node node = graphDb.getReferenceNode();
-        Assert.assertEquals( "test", node.getProperty( "name" ) );
-    }
-
-    @Test
-    public void testRemoveProperty() {
-        Node node = graphDb.getReferenceNode();
-        node.setProperty( "name", "test" );
-        Assert.assertEquals( "test", node.getProperty( "name" ) );
-        node.removeProperty( "name" );
-        Assert.assertEquals( false, node.hasProperty( "name" ) );
-    }
-
-    @Test
     public void testCreateRelationship() {
         Node refNode = graphDb.getReferenceNode();
         Node node = graphDb.createNode();
@@ -67,31 +51,6 @@ public class TestRestGraphDb {
         Assert.assertThat( refNode.getRelationships( Type.TEST ), new IsRelationshipToNodeMatcher( refNode, node ) );
     }
 
-    @Test
-    public void testSetPropertyOnRelationship() {
-        Node refNode = graphDb.getReferenceNode();
-        Node node = graphDb.createNode();
-        Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
-        rel.setProperty( "name", "test" );
-        Assert.assertEquals( "test", rel.getProperty( "name" ) );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
-        Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
-    }
-
-    @Test
-    public void testRemovePropertyOnRelationship() {
-        Node refNode = graphDb.getReferenceNode();
-        Node node = graphDb.createNode();
-        Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
-        rel.setProperty( "name", "test" );
-        Assert.assertEquals( "test", rel.getProperty( "name" ) );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
-        Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
-        rel.removeProperty( "name" );
-        Assert.assertEquals( false, rel.hasProperty( "name" ) );
-        Relationship foundRelationship2 = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
-        Assert.assertEquals( false, foundRelationship2.hasProperty( "name" ) );
-    }
 
     @Test
     public void testBasic() {
