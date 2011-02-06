@@ -24,7 +24,7 @@ Usage:
     </bean>
     </pre>
 
-Please note: Transactions are not supported over this API.
+**Please note: Transactions are not supported over this API.**
 
 References / Community:
 -----------------------
