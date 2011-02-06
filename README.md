@@ -16,6 +16,14 @@ ____________
 Usage:
 ------
 
+Build it locally. Then use the maven / ivy dependency or copy the jar into your app.
+
+    <dependency>
+		<groupId>org.neo4j</groupId>
+		<artifactId>neo4j-rest-graphdb</artifactId>
+		<version>0.1-SNAPSHOT</version>
+    </dependency>
+
     GraphDatabaseService gds = new RestGraphDatabase(new URI("http://localhost:7474/db/data"));
     GraphDatabaseService gds = new RestGraphDatabase(new URI("http://localhost:7474/db/data"),username,password);
 
@@ -25,6 +33,12 @@ Usage:
     </pre>
 
 **Please note: Transactions are not supported over this API.**
+
+Unit Test:
+----------
+For the "unit" tests to succeed, there has to be a running neo4j server on port 7474. Didn't want to pull in the server dependency and start one on my own.
+(Will perhaps end up to do that)
+
 
 References / Community:
 -----------------------
