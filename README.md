@@ -5,9 +5,10 @@ Currently supports:
 * all the node and relationship operations
 * the new Index API
 * Basic Http Auth (Digest)
+* preliminary traversal support
 
 Open issues:
-* traversal support
+* full traversal support
 * support for exposing server extensions - via an interface based proxy
 
 Usage:
@@ -23,3 +24,11 @@ GraphDatabaseService gds = new RestGraphDatabase(new URI("http://localhost:7474/
 
 Please note: Transactions are not supported over this API.
 
+References / Community:
+
+* [Neo4j community site](http://neo4j.org)
+* [Neo4j REST API](http://components.neo4j.org/neo4j-server/milestone/rest.html)
+
+Community:
+* [Neo4j Wiki](http://wiki.neo4j.org)
+* [Neo4j Mailing List](https://lists.neo4j.org/mailman/listinfo/user)
