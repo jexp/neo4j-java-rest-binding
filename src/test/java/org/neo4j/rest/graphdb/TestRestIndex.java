@@ -1,37 +1,21 @@
 package org.neo4j.rest.graphdb;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.RelationshipIndex;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class TestRestIndex {
-    private static GraphDatabaseService graphDb;
+public class TestRestIndex extends RestTestBase {
 
-    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
     private static final String NODE_INDEX_NAME = "NODE_INDEX";
     private static final String REL_INDEX_NAME = "REL_INDEX";
-
-    @BeforeClass
-    public static void startDb() throws Exception {
-        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
-    }
-
-    @AfterClass
-    public static void shutdownDb() {
-        graphDb.shutdown();
-    }
 
     @Test
     public void testAddToNodeIndex() {
