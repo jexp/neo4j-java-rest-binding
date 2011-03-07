@@ -1,28 +1,12 @@
 package org.neo4j.rest.graphdb;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
 
-import java.net.URI;
 import java.util.Date;
 
-public class TestRestGraphDb {
-    private static GraphDatabaseService graphDb;
-
-    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
-
-    @BeforeClass
-    public static void startDb() throws Exception {
-        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
-    }
-
-    @AfterClass
-    public static void shutdownDb() {
-        graphDb.shutdown();
-    }
+public class TestRestGraphDb extends RestTestBase {
 
     @Test
     public void testGetRefNode() {
@@ -50,7 +34,6 @@ public class TestRestGraphDb {
         Assert.assertThat( refNode.getRelationships( Direction.BOTH ), new IsRelationshipToNodeMatcher( refNode, node ) );
         Assert.assertThat( refNode.getRelationships( Type.TEST ), new IsRelationshipToNodeMatcher( refNode, node ) );
     }
-
 
     @Test
     public void testBasic() {

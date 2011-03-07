@@ -20,7 +20,15 @@ public class RestNodeIndex extends RestIndex<Node> {
         return Node.class;
     }
 
-    protected Node createEntity( Map<?, ?> item ) {
-        return new RestNode( (Map<?, ?>) item, restGraphDatabase );
+    public void remove(Node entity, String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void remove(Node entity) {
+        throw new UnsupportedOperationException();
+    }
+
+    protected Node createEntity(Map<?, ?> item) {
+        return new RestNode((Map<?, ?>) item, restGraphDatabase);
     }
 }
