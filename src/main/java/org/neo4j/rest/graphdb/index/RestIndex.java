@@ -8,6 +8,7 @@ import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RestEntity;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -52,8 +53,16 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
 
     }
 
+    public void remove(T entity, String key) {
+        throw new NotImplementedException();
+    }
+
+    public void remove(T entity) {
+        throw new NotImplementedException();
+    }
+
     public void delete() {
-        throw new UnsupportedOperationException();
+        throw new NotImplementedException();
     }
 
     public org.neo4j.graphdb.index.IndexHits<T> get( String key, Object value ) {
