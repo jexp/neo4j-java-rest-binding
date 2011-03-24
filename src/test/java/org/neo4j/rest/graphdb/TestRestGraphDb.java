@@ -1,12 +1,9 @@
 package org.neo4j.rest.graphdb;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
 
-import java.net.URI;
 import java.util.Date;
 
 public class TestRestGraphDb extends RestTestBase {
@@ -37,7 +34,6 @@ public class TestRestGraphDb extends RestTestBase {
         Assert.assertThat( refNode.getRelationships( Direction.BOTH ), new IsRelationshipToNodeMatcher( refNode, node ) );
         Assert.assertThat( refNode.getRelationships( Type.TEST ), new IsRelationshipToNodeMatcher( refNode, node ) );
     }
-
 
     @Test
     public void testBasic() {

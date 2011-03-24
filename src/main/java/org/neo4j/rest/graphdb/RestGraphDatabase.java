@@ -6,6 +6,9 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.KernelEventHandler;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.graphdb.index.IndexManager;
+import org.neo4j.kernel.AbstractGraphDatabase;
+import org.neo4j.kernel.Config;
+import org.neo4j.kernel.impl.transaction.TxModule;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
 import javax.ws.rs.core.Response.Status;
@@ -13,7 +16,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
-public class RestGraphDatabase implements GraphDatabaseService {
+public class RestGraphDatabase extends AbstractGraphDatabase {
     private RestRequest restRequest;
     private long propertyRefetchTimeInMillis = 1000;
 
@@ -114,5 +117,24 @@ public class RestGraphDatabase implements GraphDatabaseService {
 
     public long getPropertyRefetchTimeInMillis() {
         return propertyRefetchTimeInMillis;
+	}
+    @Override
+    public String getStoreDir() {
+        return restRequest.getUri().toString();
+    }
+
+    @Override
+    public Config getConfig() {
+        return null;
+    }
+
+    @Override
+    public <T> T getManagementBean(Class<T> type) {
+        return null;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return false;
     }
 }
