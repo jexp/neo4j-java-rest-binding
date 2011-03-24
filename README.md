@@ -36,14 +36,13 @@ Build it locally. Then use the maven / ivy dependency or copy the jar into your 
 
 Unit Test:
 ----------
-For the "unit" tests to succeed, there has to be a running neo4j server on port 7474. Didn't want to pull in the server dependency and start one on my own.
-(Will perhaps end up to do that)
+to start tests you will need the https://github.com/jexp/neo4j-clean-remote-db-addon to cleanup the database while
 
 
 References / Community:
 -----------------------
 
  * [Neo4j community site](http://neo4j.org)
- * [Neo4j REST API](http://components.neo4j.org/neo4j-server/milestone/rest.html)
+ * [Neo4j REST API](http://components.neo4j.org/neo4j-server/snapshot/rest.html)
  * [Neo4j Wiki](http://wiki.neo4j.org)
  * [Neo4j Mailing List](https://lists.neo4j.org/mailman/listinfo/user)

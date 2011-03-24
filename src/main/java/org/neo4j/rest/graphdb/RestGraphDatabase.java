@@ -9,7 +9,6 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.kernel.AbstractGraphDatabase;
 import org.neo4j.kernel.Config;
 import org.neo4j.kernel.RestConfig;
-import org.neo4j.kernel.impl.transaction.TxModule;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
 import javax.ws.rs.core.Response.Status;
@@ -19,6 +18,7 @@ import java.util.Map;
 
 public class RestGraphDatabase extends AbstractGraphDatabase {
     private RestRequest restRequest;
+    private long propertyRefetchTimeInMillis = 1000;
 
 
     public RestGraphDatabase( URI uri ) {
@@ -115,6 +115,9 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
         return restRequest;
     }
 
+    public long getPropertyRefetchTimeInMillis() {
+        return propertyRefetchTimeInMillis;
+	}
     @Override
     public String getStoreDir() {
         return restRequest.getUri().toString();

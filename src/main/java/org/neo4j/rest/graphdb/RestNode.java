@@ -27,11 +27,6 @@ public class RestNode extends RestEntity implements Node {
         super( data, graphDatabase );
     }
 
-    private WebResource resourceFrom( String key ) {
-        Map<?, ?> structuralData = getStructuralData();
-        return Client.create().resource( (String) structuralData.get( key ) );
-    }
-
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
         Map<String, Object> data = MapUtil.map( "to", ( (RestNode) toNode ).getUri(),
                 "type", type.name() );
@@ -69,6 +64,7 @@ public class RestNode extends RestEntity implements Node {
         }
         return wrapRelationships( restRequest.get( path ) );
     }
+
 
     enum RestDirection {
         INCOMING( Direction.INCOMING, "incoming", "in" ),

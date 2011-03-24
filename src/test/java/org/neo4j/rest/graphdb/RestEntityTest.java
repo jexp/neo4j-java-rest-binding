@@ -1,29 +1,14 @@
 package org.neo4j.rest.graphdb;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
-import java.net.URI;
 import java.util.Arrays;
-import java.util.Date;
 
-public class RestEntityTest {
-    private static GraphDatabaseService graphDb;
-
-    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
-
-    @BeforeClass
-    public static void startDb() throws Exception {
-        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
-    }
-
-    @AfterClass
-    public static void shutdownDb() {
-        graphDb.shutdown();
-    }
+public class RestEntityTest extends RestTestBase  {
 
     @Test
     public void testSetProperty() {
