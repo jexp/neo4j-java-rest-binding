@@ -16,22 +16,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class TestRestIndex {
-    private static GraphDatabaseService graphDb;
-
-    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
+public class TestRestIndex extends RestTestBase {
     private static final String NODE_INDEX_NAME = "NODE_INDEX";
     private static final String REL_INDEX_NAME = "REL_INDEX";
-
-    @BeforeClass
-    public static void startDb() throws Exception {
-        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
-    }
-
-    @AfterClass
-    public static void shutdownDb() {
-        graphDb.shutdown();
-    }
 
     @Test
     public void testAddToNodeIndex() {
@@ -49,8 +36,9 @@ public class TestRestIndex {
 
     @Test
     public void testAddToRelationshipIndex() {
-        relationshipIndex().add( relationship(), "name", "test" );
-        IndexHits<Relationship> hits = relationshipIndex().get( "name", "test" );
+        final long value = System.currentTimeMillis();
+        relationshipIndex().add( relationship(), "name", value );
+        IndexHits<Relationship> hits = relationshipIndex().get( "name", value );
         Assert.assertEquals( "index results", true, hits.hasNext() );
         Assert.assertEquals( relationship(), hits.next() );
     }
@@ -105,13 +93,4 @@ public class TestRestIndex {
         Assert.assertTrue( "relationship index name listed", Arrays.asList( graphDb.index().relationshipIndexNames() ).contains( REL_INDEX_NAME ) );
     }
 
-    private Relationship relationship() {
-        Iterator<Relationship> it = node().getRelationships( Direction.OUTGOING ).iterator();
-        if ( it.hasNext() ) return it.next();
-        return node().createRelationshipTo( graphDb.createNode(), Type.TEST );
-    }
-
-    private Node node() {
-        return graphDb.getReferenceNode();
-    }
 }

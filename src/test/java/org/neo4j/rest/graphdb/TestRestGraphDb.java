@@ -9,20 +9,7 @@ import org.neo4j.graphdb.*;
 import java.net.URI;
 import java.util.Date;
 
-public class TestRestGraphDb {
-    private static GraphDatabaseService graphDb;
-
-    private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
-
-    @BeforeClass
-    public static void startDb() throws Exception {
-        graphDb = new RestGraphDatabase( new URI( SERVER_ROOT_URI ) );
-    }
-
-    @AfterClass
-    public static void shutdownDb() {
-        graphDb.shutdown();
-    }
+public class TestRestGraphDb extends RestTestBase {
 
     @Test
     public void testGetRefNode() {

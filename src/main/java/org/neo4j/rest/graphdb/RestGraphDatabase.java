@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class RestGraphDatabase implements GraphDatabaseService {
     private RestRequest restRequest;
+    private long propertyRefetchTimeInMillis = 1000;
 
 
     public RestGraphDatabase( URI uri ) {
@@ -109,5 +110,9 @@ public class RestGraphDatabase implements GraphDatabaseService {
 
     public RestRequest getRestRequest() {
         return restRequest;
+    }
+
+    public long getPropertyRefetchTimeInMillis() {
+        return propertyRefetchTimeInMillis;
     }
 }
