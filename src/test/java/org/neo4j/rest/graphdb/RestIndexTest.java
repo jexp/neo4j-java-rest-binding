@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class TestRestIndex {
+public class RestIndexTest {
     private static GraphDatabaseService graphDb;
 
     private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";

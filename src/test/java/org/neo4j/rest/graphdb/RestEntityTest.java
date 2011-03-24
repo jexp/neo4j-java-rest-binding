@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
 
-public class TestRestEntity {
+public class RestEntityTest {
     private static GraphDatabaseService graphDb;
 
     private static final String SERVER_ROOT_URI = "http://localhost:7474/db/data/";
