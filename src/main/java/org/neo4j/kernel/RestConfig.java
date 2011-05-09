@@ -1,14 +1,11 @@
 package org.neo4j.kernel;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.Config;
-import org.neo4j.kernel.IdGeneratorFactory;
 import org.neo4j.kernel.impl.core.*;
 import org.neo4j.kernel.impl.nioneo.store.FileSystemAbstraction;
 import org.neo4j.kernel.impl.nioneo.store.StoreId;
 import org.neo4j.kernel.impl.transaction.LockManager;
 import org.neo4j.kernel.impl.transaction.TxModule;
-import org.neo4j.kernel.impl.transaction.xaframework.LogBufferFactory;
 import org.neo4j.kernel.impl.transaction.xaframework.TxIdGenerator;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 
@@ -22,15 +19,9 @@ import java.util.Map;
 * @since 23.02.11
 */
 public class RestConfig extends Config {
-    public RestConfig(GraphDatabaseService graphDb, String storeDir, StoreId storeId,
-                      Map<String, String> inputParams, KernelPanicEventGenerator kpe,
-                      TxModule txModule, LockManager lockManager, LockReleaser lockReleaser,
-                      IdGeneratorFactory idGeneratorFactory,
-                      TxEventSyncHookFactory txSyncHookFactory, RelationshipTypeCreator relTypeCreator,
-                      TxIdGenerator txIdGenerator, LastCommittedTxIdSetter lastCommittedTxIdSetter,
-                      FileSystemAbstraction fileSystem, LogBufferFactory logBufferFactory) {
-        super(graphDb, storeDir, storeId,
-                inputParams, kpe, txModule, lockManager, lockReleaser, idGeneratorFactory, txSyncHookFactory, relTypeCreator, txIdGenerator, lastCommittedTxIdSetter, fileSystem, logBufferFactory);
+
+    private RestConfig(GraphDatabaseService graphDb, String storeDir, StoreId storeId, Map<String, String> inputParams, KernelPanicEventGenerator kpe, TxModule txModule, LockManager lockManager, LockReleaser lockReleaser, IdGeneratorFactory idGeneratorFactory, TxEventSyncHookFactory txSyncHookFactory, RelationshipTypeCreator relTypeCreator, TxIdGenerator txIdGenerator, LastCommittedTxIdSetter lastCommittedTxIdSetter, FileSystemAbstraction fileSystem) {
+        super(graphDb, storeDir, storeId, inputParams, kpe, txModule, lockManager, lockReleaser, idGeneratorFactory, txSyncHookFactory, relTypeCreator, txIdGenerator, lastCommittedTxIdSetter, fileSystem);
     }
 
     public RestConfig(RestGraphDatabase restGraphDatabase) {
@@ -44,7 +35,7 @@ public class RestConfig extends Config {
                 },
                 null,null,
                 null,null,null,null,null,
-                null,null);
+                null);
     }
 
     private static class NullTransactionManager implements TransactionManager {

@@ -1,9 +1,6 @@
 package org.neo4j.rest.graphdb;
 
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -12,15 +9,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.server.AddressResolver;
-import org.neo4j.server.NeoServerWithEmbeddedWebServer;
-import org.neo4j.server.extension.test.delete.LocalTestServer;
-import org.neo4j.server.modules.RESTApiModule;
-import org.neo4j.server.modules.ThirdPartyJAXRSModule;
-import org.neo4j.server.startup.healthcheck.StartupHealthCheck;
-import org.neo4j.server.web.Jetty6WebServer;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
@@ -37,22 +26,13 @@ public class RestTestBase {
 
     @BeforeClass
     public static void startDb() throws Exception {
-        BasicConfigurator.configure();
         neoServer.start();
     }
 
     @Before
     public void setUp() throws URISyntaxException {
-        cleanDb();
+        neoServer.cleanDb();
         graphDb = new RestGraphDatabase(new URI(SERVER_ROOT_URI));
-    }
-
-    private void cleanDb() {
-        ClientResponse response = Client
-                .create().resource(SERVER_CLEANDB_URI)
-                .delete(ClientResponse.class);
-
-        if (response.getStatus() != 200) throw new RuntimeException("unable to clean database " + response);
     }
 
     @After

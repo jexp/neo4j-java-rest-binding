@@ -2,15 +2,14 @@ package org.neo4j.rest.graphdb;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipIndex;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 public class RestIndexTest extends RestTestBase {
 
@@ -47,7 +46,7 @@ public class RestIndexTest extends RestTestBase {
     }
 
     @Test
-    public void testDeleteFromNodeIndex() {
+    public void testDeleteKeyValueFromNodeIndex() {
         String value = String.valueOf(System.currentTimeMillis());
         nodeIndex().add(node(), "time", value);
         IndexHits<Node> hits = nodeIndex().get("time", value);
@@ -56,6 +55,70 @@ public class RestIndexTest extends RestTestBase {
         nodeIndex().remove(node(), "time", value);
         IndexHits<Node> hitsAfterRemove = nodeIndex().get("time", value);
         Assert.assertEquals("not found in index results", false, hitsAfterRemove.hasNext());
+    }
+
+    @Test
+    public void testDeleteKeyFromNodeIndex() {
+        String value = String.valueOf(System.currentTimeMillis());
+        nodeIndex().add(node(), "time", value);
+        IndexHits<Node> hits = nodeIndex().get("time", value);
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+        nodeIndex().remove(node(), "time");
+        IndexHits<Node> hitsAfterRemove = nodeIndex().get("time", value);
+        Assert.assertEquals("not found in index results", false, hitsAfterRemove.hasNext());
+    }
+    @Test
+    public void testDeleteNodeFromNodeIndex() {
+        String value = String.valueOf(System.currentTimeMillis());
+        nodeIndex().add(node(), "time", value);
+        IndexHits<Node> hits = nodeIndex().get("time", value);
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+        nodeIndex().remove(node());
+        IndexHits<Node> hitsAfterRemove = nodeIndex().get("time", value);
+        Assert.assertEquals("not found in index results", false, hitsAfterRemove.hasNext());
+    }
+    @Test
+    public void testDeleteIndex() {
+        final String indexName = nodeIndex().getName();
+        nodeIndex().delete();
+        final List<String> indexNames = Arrays.asList(graphDb.index().nodeIndexNames());
+        Assert.assertEquals("removed index name",false,indexNames.contains(indexName));
+    }
+    @Test
+    public void testCreateFulltextIndex() {
+        Map<String,String> config=new HashMap<String, String>();
+        config.put("provider", "lucene");
+        config.put("type","fulltext");
+        final IndexManager indexManager = graphDb.index();
+        final Index<Node> index = indexManager.forNodes("fulltext", config);
+        final Map<String, String> config2 = indexManager.getConfiguration(index);
+        Assert.assertEquals("provider", config.get("provider"), config2.get("provider"));
+        Assert.assertEquals("type", config.get("type"), config2.get("type"));
+    }
+
+    @Test
+    public void testQueryFulltextIndexWithKey() {
+        Map<String,String> config=new HashMap<String, String>();
+        config.put("provider","lucene");
+        config.put("type","fulltext");
+        final Index<Node> index = graphDb.index().forNodes("text-index", config);
+        index.add(node(),"text","any text");
+        final IndexHits<Node> hits = index.query("text", "any t*");
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+    }
+    @Test
+    public void testQueryFulltextIndexWithOutKey() {
+        Map<String,String> config=new HashMap<String, String>();
+        config.put("provider","lucene");
+        config.put("type","fulltext");
+        final Index<Node> index = graphDb.index().forNodes("text-index", config);
+        index.add(node(),"text","any text");
+        final IndexHits<Node> hits = index.query("text:any t*");
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
     }
 
     @Test

@@ -8,7 +8,6 @@ import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RestEntity;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -40,12 +39,17 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     }
 
     public void add( T entity, String key, Object value ) {
-        String uri = ( (RestEntity) entity ).getUri();
-        restRequest.post( indexPath( key, value ), JsonHelper.createJsonFrom( uri ) );
+        final RestEntity restEntity = (RestEntity) entity;
+        String uri = restEntity.getUri();
+        final ClientResponse response = restRequest.post(indexPath(key, value), JsonHelper.createJsonFrom(uri));
+        if (response.getStatus() != 201) throw new RuntimeException(String.format("Error adding element %d %s %s to index %s", restEntity.getId(), key, value, indexName));
     }
 
     private String indexPath( String key, Object value ) {
-        return "index/" + getTypeName() + "/" + indexName + "/" + RestRequest.encode( key ) + "/" + RestRequest.encode( value );
+        return "index/" + getTypeName() + "/" + indexName + (key!=null? "/" + RestRequest.encode( key ) :"") + (value!=null ? "/" + RestRequest.encode( value ):"");
+    }
+    private String queryPath( String key, Object value ) {
+        return indexPath(key,null) + "?query="+RestRequest.encode( value );
     }
 
     public void remove( T entity, String key, Object value ) {
@@ -54,23 +58,28 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     }
 
     public void remove(T entity, String key) {
-        throw new NotImplementedException();
+        restRequest.delete( indexPath( key,null ) + "/" + ( (RestEntity) entity ).getId() );
     }
 
     public void remove(T entity) {
-        throw new NotImplementedException();
+        restRequest.delete( indexPath( null, null) + "/" + ( (RestEntity) entity ).getId() );
     }
 
     public void delete() {
-        throw new NotImplementedException();
+        restRequest.delete(indexPath(null,null));
     }
 
     public org.neo4j.graphdb.index.IndexHits<T> get( String key, Object value ) {
-        return query( key, value );
+        ClientResponse response = restRequest.get( indexPath( key, value ) );
+        return handleQueryResults(response);
     }
 
     public IndexHits<T> query( String key, Object value ) {
-        ClientResponse response = restRequest.get( indexPath( key, value ) );
+        ClientResponse response = restRequest.get( queryPath( key, value ) );
+        return handleQueryResults(response);
+    }
+
+    private IndexHits<T> handleQueryResults(ClientResponse response) {
         if ( restRequest.statusIs( response, Response.Status.OK ) ) {
             Collection hits = (Collection) restRequest.toEntity( response );
             return new SimpleIndexHits<T>( hits, hits.size() );
@@ -82,7 +91,7 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     protected abstract T createEntity( Map<?, ?> item );
 
     public org.neo4j.graphdb.index.IndexHits<T> query( Object value ) {
-        throw new UnsupportedOperationException();
+        return query("null",value);
     }
 
     private class SimpleIndexHits<T extends PropertyContainer> implements IndexHits<T> {
