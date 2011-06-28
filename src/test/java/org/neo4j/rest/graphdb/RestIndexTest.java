@@ -1,5 +1,7 @@
 package org.neo4j.rest.graphdb;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -8,8 +10,12 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.index.lucene.QueryContext;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RestIndexTest extends RestTestBase {
 
@@ -117,6 +123,34 @@ public class RestIndexTest extends RestTestBase {
         final Index<Node> index = graphDb.index().forNodes("text-index", config);
         index.add(node(),"text","any text");
         final IndexHits<Node> hits = index.query("text:any t*");
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+    }
+
+    @Test
+    public void testQueryFulltextIndexWithLuceneQueryTerm() {
+        Map<String,String> config=new HashMap<String, String>();
+        config.put("provider","lucene");
+        config.put("type","fulltext");
+        final Index<Node> index = graphDb.index().forNodes("text-index", config);
+        index.add(node(),"text","any text");
+        TermQuery luceneQuery = new TermQuery(new Term("text", "any t*"));
+        // TODO this works only because the toString implementation renders a complete query -> dangerous assumption
+        final IndexHits<Node> hits = index.query(luceneQuery);
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+    }
+
+    @Test
+    public void testQueryFulltextIndexWithQueryContext() {
+        Map<String,String> config=new HashMap<String, String>();
+        config.put("provider","lucene");
+        config.put("type","fulltext");
+        final Index<Node> index = graphDb.index().forNodes("text-index", config);
+        index.add(node(),"text","any text");
+        QueryContext ctx = new QueryContext("text:any t*");
+        // TODO currently fails because RestRequest simply calls QueryContext#toString, which doesn't yield a useful query
+        final IndexHits<Node> hits = index.query(ctx);
         Assert.assertEquals("found in index results", true, hits.hasNext());
         Assert.assertEquals("found in index results", node(), hits.next());
     }
