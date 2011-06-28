@@ -2,6 +2,7 @@
 *.ipr
 *.iws
 *.iml
+.idea
 *.zip
 target
 *.log
