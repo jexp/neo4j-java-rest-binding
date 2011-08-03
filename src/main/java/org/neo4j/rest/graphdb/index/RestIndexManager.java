@@ -4,8 +4,10 @@ import com.sun.jersey.api.client.ClientResponse;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.index.AutoIndexer;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
+import org.neo4j.graphdb.index.RelationshipAutoIndexer;
 import org.neo4j.graphdb.index.RelationshipIndex;
 import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
@@ -97,5 +99,17 @@ public class RestIndexManager implements IndexManager {
     public String removeConfiguration( Index<? extends PropertyContainer> index, String s ) {
         throw new UnsupportedOperationException();
     }
+
+	@Override
+	public AutoIndexer<Node> getNodeAutoIndexer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RelationshipAutoIndexer getRelationshipAutoIndexer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 

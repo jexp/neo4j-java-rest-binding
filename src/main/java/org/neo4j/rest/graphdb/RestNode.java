@@ -134,4 +134,17 @@ public class RestNode extends RestEntity implements Node {
                                RelationshipType secondType, Direction secondDirection ) {
         throw new UnsupportedOperationException();
     }
+
+	@Override
+	public Iterable<Relationship> getRelationships(Direction arg0,
+			RelationshipType... arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasRelationship(Direction arg0, RelationshipType... arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
