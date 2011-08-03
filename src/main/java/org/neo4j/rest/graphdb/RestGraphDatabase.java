@@ -1,7 +1,6 @@
 package org.neo4j.rest.graphdb;
 
 import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.ClientResponse;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.KernelEventHandler;
 import org.neo4j.graphdb.event.TransactionEventHandler;
@@ -64,7 +63,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Node createNode() {
-        ClientResponse response = restRequest.post( "node", null );
+    	RequestResult response = restRequest.post( "node", null );
         if ( restRequest.statusOtherThan( response, Status.CREATED ) ) {
             throw new RuntimeException( "" + response.getStatus() );
         }
@@ -84,7 +83,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Node getNodeById( long id ) {
-        ClientResponse response = restRequest.get( "node/" + id );
+    	RequestResult response = restRequest.get( "node/" + id );
         if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
             throw new NotFoundException( "" + id );
         }
@@ -97,7 +96,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Relationship getRelationshipById( long id ) {
-        ClientResponse response = restRequest.get( "relationship/" + id );
+    	RequestResult response = restRequest.get( "relationship/" + id );
         if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
             throw new NotFoundException( "" + id );
         }

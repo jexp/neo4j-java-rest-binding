@@ -1,10 +1,11 @@
 package org.neo4j.rest.graphdb.index;
 
-import com.sun.jersey.api.client.ClientResponse;
+
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.rest.graphdb.JsonHelper;
+import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestEntity;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
@@ -41,7 +42,7 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     public void add( T entity, String key, Object value ) {
         final RestEntity restEntity = (RestEntity) entity;
         String uri = restEntity.getUri();
-        final ClientResponse response = restRequest.post(indexPath(key, value), JsonHelper.createJsonFrom(uri));
+        final RequestResult response = restRequest.post(indexPath(key, value), JsonHelper.createJsonFrom(uri));
         if (response.getStatus() != 201) throw new RuntimeException(String.format("Error adding element %d %s %s to index %s", restEntity.getId(), key, value, indexName));
     }
 
@@ -70,16 +71,16 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     }
 
     public org.neo4j.graphdb.index.IndexHits<T> get( String key, Object value ) {
-        ClientResponse response = restRequest.get( indexPath( key, value ) );
+    	RequestResult response = restRequest.get( indexPath( key, value ) );
         return handleQueryResults(response);
     }
 
     public IndexHits<T> query( String key, Object value ) {
-        ClientResponse response = restRequest.get( queryPath( key, value ) );
+    	RequestResult response = restRequest.get( queryPath( key, value ) );
         return handleQueryResults(response);
     }
 
-    private IndexHits<T> handleQueryResults(ClientResponse response) {
+    private IndexHits<T> handleQueryResults(RequestResult response) {
         if ( restRequest.statusIs( response, Response.Status.OK ) ) {
             Collection hits = (Collection) restRequest.toEntity( response );
             return new SimpleIndexHits<T>( hits, hits.size() );

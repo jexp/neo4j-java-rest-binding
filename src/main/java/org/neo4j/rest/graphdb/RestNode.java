@@ -1,13 +1,11 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Traverser.Order;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.rest.graphdb.RequestResult;
 
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
@@ -31,7 +29,7 @@ public class RestNode extends RestEntity implements Node {
         Map<String, Object> data = MapUtil.map( "to", ( (RestNode) toNode ).getUri(),
                 "type", type.name() );
 
-        ClientResponse response = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
+        RequestResult response = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
         if ( restRequest.statusOtherThan( response, Status.CREATED ) ) {
             throw new RuntimeException( "" + response.getStatus() );
         }
@@ -43,9 +41,9 @@ public class RestNode extends RestEntity implements Node {
     }
 
     @SuppressWarnings("unchecked")
-    private Iterable<Relationship> wrapRelationships( ClientResponse response ) {
+    private Iterable<Relationship> wrapRelationships(  RequestResult requestResult ) {
         return new IterableWrapper<Relationship, Object>(
-                (Collection<Object>) restRequest.toEntity( response ) ) {
+                (Collection<Object>) restRequest.toEntity( requestResult ) ) {
             @Override
             protected Relationship underlyingObjectToObject( Object data ) {
                 return new RestRelationship( (Map<?, ?>) data, getGraphDatabase() );

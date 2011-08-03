@@ -1,6 +1,5 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.client.ClientResponse;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -138,7 +137,7 @@ public class RestTraversal implements RestTraversalDescription {
         final RestNode restNode = (RestNode) node;
         final RestRequest request = restNode.getRestRequest();
         final String traversalJson = JsonHelper.createJsonFrom(description);
-        final ClientResponse result = request.post("traverse/" + FULLPATH, traversalJson);
+        final RequestResult result = request.post("traverse/" + FULLPATH, traversalJson);
         if (request.statusOtherThan(result, Response.Status.OK)) throw new RuntimeException(String.format("Error executing traversal: %d %s",result.getStatus(), traversalJson));
         final Object col = request.toEntity(result);
         if (!(col instanceof Collection)) throw new RuntimeException(String.format("Unexpected traversal result, %s instead of collection", col!=null ? col.getClass() : null));

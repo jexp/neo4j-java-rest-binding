@@ -2,6 +2,7 @@ package org.neo4j.rest.graphdb;
 
 import org.neo4j.graphdb.*;
 
+
 import java.net.URI;
 import java.util.Map;
 
@@ -58,4 +59,6 @@ public class RestRelationship extends RestEntity implements Relationship {
     public boolean isType( RelationshipType type ) {
         return type.name().equals( getStructuralData().get( "type" ) );
     }
+    
+   
 }

@@ -8,6 +8,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipIndex;
 import org.neo4j.rest.graphdb.JsonHelper;
+import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
 
@@ -31,8 +32,9 @@ public class RestIndexManager implements IndexManager {
         return indexInfo(NODE).containsKey( indexName );
     }
 
+    @SuppressWarnings({"unchecked"})
     private Map<String, ?> indexInfo( final String indexType ) {
-        ClientResponse response = restRequest.get( "index/" + indexType );
+    	RequestResult response = restRequest.get( "index/" + indexType );
         if ( restRequest.statusIs( response, ClientResponse.Status.NO_CONTENT ) ) return Collections.emptyMap();
         return (Map<String, ?>) restRequest.toMap( response );
     }

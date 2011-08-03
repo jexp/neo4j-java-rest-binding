@@ -1,10 +1,11 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.client.ClientResponse;
+
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.rest.graphdb.util.ArrayConverter;
+import org.neo4j.rest.graphdb.RequestResult;
 
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
@@ -51,7 +52,7 @@ public class RestEntity implements PropertyContainer {
 
     Map<String, Object> getPropertyData() {
         if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, graphDatabase.getPropertyRefetchTimeInMillis() ) ) {
-            ClientResponse response = restRequest.get( "properties" );
+        	RequestResult response = restRequest.get( "properties" );
             boolean ok = restRequest.statusIs( response, Status.OK );
             if ( ok ) {
                 this.propertyData = (Map<String, Object>) restRequest.toMap( response );
