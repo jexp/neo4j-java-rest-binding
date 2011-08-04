@@ -1,13 +1,11 @@
 package org.neo4j.rest.graphdb;
 
-import java.io.File;
-
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
+
 
 /**
  * Creates a database using the matrix example for testing purposes
@@ -20,27 +18,25 @@ public class MatrixDatabaseCreator {
 	     NEO_NODE,
 	     KNOWS,
 	     CODED_BY
-	 }
-	 
-	 private static final String MATRIX_DB = "db/matrix-db";
-	 private static GraphDatabaseService graphDb;
-	 
+	 }	 
+	
+		 
 	 /**
-	  * creates a new instance of the matrix database and fills it
-	  * @return the created database instance
+	  * /**
+	  * fills a given graph database with matrix modes and relations
+	  * @param graphDb the graph database to fill
+	  * @return the filled database instance
 	  */
-	 public static GraphDatabaseService getMatrixDatabase(){
-	    deleteFileOrDirectory( new File( MATRIX_DB ) );
-	    graphDb = new EmbeddedGraphDatabase( MATRIX_DB );
-	    createNodespace();
-	    return graphDb;
+	 public void createMatrixDatabase(GraphDatabaseService graphDb){	  
+	    createNodespace(graphDb);	    
 	 }
 
 	 
 	 /**
 	  * fills the database with nodes and relationships, using the matrix example
+	  * @param graphDb the graph database to fill 
 	  */
-	 private static void createNodespace() {
+	 private void createNodespace(GraphDatabaseService graphDb) {
 	      Transaction tx = graphDb.beginTx();
 	      try {
 	    	 // create neo node
@@ -88,22 +84,5 @@ public class MatrixDatabaseCreator {
 	         tx.finish();
 	     }
 	 }
-
-		 
-	 
-   private static void deleteFileOrDirectory( final File file ){
-          if ( !file.exists() ){
-               return;
-          }
-          
-          if ( file.isDirectory() ){
-            for ( File child : file.listFiles() ){
-                deleteFileOrDirectory( child );
-            }
-          } else {
-           file.delete();
-          }
-   }
- 
 
 }

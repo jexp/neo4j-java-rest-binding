@@ -2,6 +2,8 @@ package org.neo4j.rest.graphdb;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.rest.graphdb.MatrixDatabaseCreator.RelTypes;
+import org.neo4j.test.ImpermanentGraphDatabase;
 
 
 
@@ -27,7 +30,13 @@ public class MatrixDatabaseTest {
 	
 	      @BeforeClass
 	      public static void setUp() {
-	    	  graphDb = MatrixDatabaseCreator.getMatrixDatabase();
+	    	  try {
+				graphDb =  new ImpermanentGraphDatabase();
+				MatrixDatabaseCreator gen = new MatrixDatabaseCreator();
+				gen.createMatrixDatabase(graphDb);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 	      }
 	  
 	      @AfterClass
