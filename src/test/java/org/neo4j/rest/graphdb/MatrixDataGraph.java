@@ -12,7 +12,7 @@ import org.neo4j.graphdb.Transaction;
  * @author Klemens Burchardi
  * @since 03.08.11
  */
-public class MatrixDatabaseCreator {
+public class MatrixDataGraph {
 	 /** specify relationship types*/
 	 public enum RelTypes implements RelationshipType{
 	     NEO_NODE,
@@ -20,39 +20,35 @@ public class MatrixDatabaseCreator {
 	     CODED_BY
 	 }	 
 	
-		 
-	 /**
-	  * /**
-	  * fills a given graph database with matrix modes and relations
-	  * @param graphDb the graph database to fill
-	  * @return the filled database instance
-	  */
-	 public void createMatrixDatabase(GraphDatabaseService graphDb){	  
-	    createNodespace(graphDb);	    
+	 private GraphDatabaseService graphDb;
+	 
+	 public MatrixDataGraph(GraphDatabaseService graphDb){
+		 this.graphDb = graphDb;
+		 createNodespace();
 	 }
-
+		
 	 
 	 /**
 	  * fills the database with nodes and relationships, using the matrix example
 	  * @param graphDb the graph database to fill 
 	  */
-	 private void createNodespace(GraphDatabaseService graphDb) {
-	      Transaction tx = graphDb.beginTx();
+	 private void createNodespace() {
+	      Transaction tx = this.graphDb.beginTx();
 	      try {
 	    	 // create neo node
-	         Node neo = graphDb.createNode();
+	         Node neo = this.graphDb.createNode();
 	         neo.setProperty( "age", 29 );
 	         neo.setProperty( "name", "Thomas Anderson" );	         
 	         // connect neo to the reference node
-	         Node referenceNode = graphDb.getReferenceNode();
+	         Node referenceNode = this.graphDb.getReferenceNode();
 	         referenceNode.createRelationshipTo( neo, RelTypes.NEO_NODE );
 	         // create trinity node
-	         Node trinity = graphDb.createNode();
+	         Node trinity = this.graphDb.createNode();
 	         trinity.setProperty( "name", "Trinity" );
 	         Relationship rel = neo.createRelationshipTo( trinity, RelTypes.KNOWS );
 	         rel.setProperty( "age", "3 days" );
 	         // create morpheus node
-	         Node morpheus = graphDb.createNode();
+	         Node morpheus = this.graphDb.createNode();
 	         morpheus.setProperty( "name", "Morpheus" );
 	         morpheus.setProperty( "occupation", "Total badass" );
 	         morpheus.setProperty( "rank", "Captain" );	      
@@ -60,14 +56,14 @@ public class MatrixDatabaseCreator {
 	         rel = morpheus.createRelationshipTo( trinity, RelTypes.KNOWS );
 	         rel.setProperty( "age", "12 years" );
 	         // create cypher node
-	         Node cypher = graphDb.createNode();
+	         Node cypher = this.graphDb.createNode();
 	         cypher.setProperty( "last name", "Reagan" );
 	         cypher.setProperty( "name", "Cypher" );	     
 	         trinity.createRelationshipTo( cypher, RelTypes.KNOWS );
 	         rel = morpheus.createRelationshipTo( cypher, RelTypes.KNOWS );
 	         rel.setProperty( "disclosure", "public" );
 	         // create smith node
-	         Node smith = graphDb.createNode();
+	         Node smith = this.graphDb.createNode();
 	         smith.setProperty( "language", "C++" );
 	         smith.setProperty( "name", "Agent Smith" );
 	         smith.setProperty( "version", "1.0b" );	        
@@ -75,7 +71,7 @@ public class MatrixDatabaseCreator {
 	         rel.setProperty( "age", "6 months" );
 	         rel.setProperty( "disclosure", "secret" );	        
 	         // create architect node
-	         Node architect = graphDb.createNode();
+	         Node architect = this.graphDb.createNode();
 	         architect.setProperty( "name", "The Architect" );
 	         smith.createRelationshipTo( architect, RelTypes.CODED_BY );
 	 	     
@@ -84,5 +80,10 @@ public class MatrixDatabaseCreator {
 	         tx.finish();
 	     }
 	 }
+
+
+	public GraphDatabaseService getGraphDatabase() {
+		return graphDb;
+	}
 
 }
