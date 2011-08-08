@@ -65,7 +65,7 @@ public class RestTraversal implements RestTraversalDescription {
 
     public RestTraversalDescription filter(Predicate<Path> pathPredicate) {
         if (pathPredicate == Traversal.returnAll()) return add("return_filter",toMap("language","builtin", "name","all"));
-        if (pathPredicate == Traversal.returnAllButStartNode()) return add("return_filter",toMap("language","builtin", "name","all but start node"));
+        if (pathPredicate == Traversal.returnAllButStartNode()) return add("return_filter",toMap("language","builtin", "name","all_but_start_node"));
         throw new UnsupportedOperationException("Only builtin paths supported");
     }
 
