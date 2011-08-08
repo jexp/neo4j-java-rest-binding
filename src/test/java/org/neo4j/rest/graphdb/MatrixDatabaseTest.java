@@ -17,6 +17,7 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.helpers.Predicate;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.rest.graphdb.MatrixDataGraph.RelTypes;
 import org.neo4j.test.ImpermanentGraphDatabase;
@@ -124,6 +125,13 @@ public class MatrixDatabaseTest {
         	   assertEquals( "Trinity", trinity.getProperty("name") );
            }
            
+           
+           @Test
+           public void checkTraverseByProperties() throws Exception {    	  
+               Traverser heroesTraverser = getHeroes();
+               Traverser heroesTraverserByProperties = getHeroesByNodeProperties();
+               assertEquals( heroesTraverser.nodes().iterator().next(), heroesTraverserByProperties.nodes().iterator().next() );
+           }
           
            
            /**
@@ -152,7 +160,20 @@ public class MatrixDatabaseTest {
            }
 
         
-           
+           /**
+            * returns a traverser for all nodes that have a property type == hero in the embedded Database
+            * @return the Traverser
+            */
+           private Traverser getHeroesByNodeProperties() {
+         	  TraversalDescription td = Traversal.description()          		  	
+                       .breadthFirst()                        
+                       .relationships( RelTypes.PERSONS_REFERENCE, Direction.OUTGOING )
+                       .relationships( RelTypes.HEROES_REFERENCE, Direction.OUTGOING )
+                       .relationships( RelTypes.HERO, Direction.OUTGOING )
+                       .filter(Traversal.returnAllButStartNode())               
+                       .filter(new Predicate<Path>() { public boolean accept(Path path) { return path.endNode().getProperty("type","none").equals("hero");}});
+         	 return td.traverse(mdg.getGraphDatabase().getReferenceNode());
+           }
            
            /**
             * checks if neo has a friend named cypher

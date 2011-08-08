@@ -18,6 +18,7 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.helpers.Predicate;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.rest.graphdb.MatrixDataGraph.RelTypes;
 import org.neo4j.rest.graphdb.RestTraversalDescription.ScriptLanguage;
@@ -71,7 +72,8 @@ public class MatrixDatabaseRestTest extends RestTestBase{
        */
       @Test
       public void getNeoFriends() throws Exception {
-          Node neoNode = restmdg.getNeoNode();       
+          Node neoNode = restmdg.getNeoNode(); 
+          System.out.println(neoNode.getProperty("name"));
           Traverser friendsTraverser = getFriends( neoNode );         
           int numberOfFriends = 0;              
           for ( Path friendPath : friendsTraverser ) {               
@@ -87,7 +89,7 @@ public class MatrixDatabaseRestTest extends RestTestBase{
        */
       @Test
       public void checkNumberOfHeroes() throws Exception {                         
-          Traverser heroesTraverser = getHeroesByRest();
+          Traverser heroesTraverser = getHeroesViaRest();
           int numberOfHeroes = 0;              
           for ( Path heroPath : heroesTraverser ) {
         	  System.out.println(heroPath.endNode().getProperty("type"));
@@ -96,36 +98,111 @@ public class MatrixDatabaseRestTest extends RestTestBase{
          
           assertEquals( 3, numberOfHeroes );
       }
+      
      
+      /**
+       * check if rest traversal returns the same as embedded traversal
+       * @throws Exception
+       */
+      @Test
+      public void checkTraverseByProperties() throws Exception {    	  
+          Traverser heroesTraverserRest = getHeroesViaRest();
+          Traverser heroesTraverserByProperties = getHeroesByNodeProperties();
+          assertEquals( heroesTraverserRest.nodes().iterator().next().getId(), heroesTraverserByProperties.nodes().iterator().next().getId() );
+      }
+      
+      /**
+       * check if different REST Traversals for all heroes return the same 
+       * @throws Exception
+       */
+      @Test
+      public void checkTraverseByPropertiesRest() throws Exception {    	  
+          Traverser heroesTraverserRest = getHeroesViaRest();
+          Traverser heroesTraverserByPropertiesRest = getHeroesByNodePropertiesViaRest();
+          assertEquals( heroesTraverserRest.nodes().iterator().next(), heroesTraverserByPropertiesRest.nodes().iterator().next() );
+      }
+      
+      /**
+       * check if rest traversal and traversal via the collection node return the same result
+       * @throws Exception
+       */
+      @Test
+      public void checkTraverseByCollectionNode() throws Exception {    	  
+          Traverser heroesTraverserRest = getHeroesViaRest();
+          Traverser heroesTraverserByCollection = getHeroesByCollectionNodeViaRest();
+          assertEquals( heroesTraverserRest.nodes().iterator().next(), heroesTraverserByCollection.nodes().iterator().next() );
+      }
+      
+      
       /**
        * returns a traverser for all nodes that have an outgoing relationship of the type KNOWS
        * @param person the startnode
        * @return the Traverser
        */
       private static Traverser getFriends( final Node person ) {
-               TraversalDescription td = RestTraversal.description()   
-            		   .maxDepth(10)
-                       .breadthFirst()                         
-                       .relationships( RelTypes.KNOWS, Direction.OUTGOING )
-                       .filter(Traversal.returnAllButStartNode());               
-               return td.traverse( person );
-           }
+           TraversalDescription td = RestTraversal.description()   
+        		   .maxDepth(10)
+                   .breadthFirst()                         
+                   .relationships( RelTypes.KNOWS, Direction.OUTGOING )
+                   .filter(Traversal.returnAllButStartNode());                 
+           return td.traverse( person );
+       }
       
       /**
-       * returns a traverser for all nodes that have an outgoing relationship of the type HERO          
+       * returns a traverser for all nodes that have an outgoing relationship of the type HERO an are 3 positions down in the path         
        * @return the Traverser
        */
-      private Traverser getHeroesByRest() {
+      private Traverser getHeroesViaRest() {
     	 TraversalDescription td = RestTraversal.description()   
        		   .maxDepth(3)       	
                .breadthFirst()                        
                .relationships( RelTypes.PERSONS_REFERENCE, Direction.OUTGOING )
                .relationships( RelTypes.HEROES_REFERENCE, Direction.OUTGOING )
-               .relationships( RelTypes.HERO, Direction.OUTGOING )
-               .filter(Traversal.returnAllButStartNode())               
+               .relationships( RelTypes.HERO, Direction.OUTGOING )                       
                .filter(ScriptLanguage.JAVASCRIPT, "position.length() == 3;"); 
-    	  System.out.println(td.toString());
           return td.traverse(this.restmdg.getGraphDatabase().getReferenceNode());
+      }
+      
+      /**
+       * returns a traverser for all nodes that have a hero relationship and are connected to the hero collection node
+       * @return
+       */
+      private Traverser getHeroesByCollectionNodeViaRest(){
+    	  TraversalDescription td = RestTraversal.description()   
+       		   .maxDepth(10)
+               .breadthFirst()                         
+               .relationships( RelTypes.HERO, Direction.OUTGOING );                     
+          return td.traverse( this.restmdg.getHeroesCollectionNode() );
+      }
+      
+      /**
+       * returns a traverser for all nodes that have a property type == hero via the REST API        
+       * @return the Traverser
+       */
+      private Traverser getHeroesByNodePropertiesViaRest() {
+    	 TraversalDescription td = RestTraversal.description()   
+       		   .maxDepth(3)       	
+               .breadthFirst()                        
+               .relationships( RelTypes.PERSONS_REFERENCE, Direction.OUTGOING )
+               .relationships( RelTypes.HEROES_REFERENCE, Direction.OUTGOING )
+               .relationships( RelTypes.HERO, Direction.OUTGOING )                          
+               .filter(ScriptLanguage.JAVASCRIPT, "position.endNode().getProperty('type','none') == 'hero';");    	
+          return td.traverse(this.restmdg.getGraphDatabase().getReferenceNode());
+      }
+      
+      
+      /**
+       * returns a traverser for all nodes that have a property type == hero in the embedded Database
+       * @return the Traverser
+       */
+      private Traverser getHeroesByNodeProperties() {
+    	  TraversalDescription td = Traversal.description()          		  	
+                .breadthFirst()                        
+                .relationships( RelTypes.PERSONS_REFERENCE, Direction.OUTGOING )
+                .relationships( RelTypes.HEROES_REFERENCE, Direction.OUTGOING )
+                .relationships( RelTypes.HERO, Direction.OUTGOING )                              
+                .filter(new Predicate<Path>() { public boolean accept(Path path) { return path.endNode().getProperty("type","none").equals("hero");}});
+    	 return td.traverse(this.embeddedmdg.getGraphDatabase().getReferenceNode());
       }
 
 	
