@@ -64,8 +64,8 @@ public class RestTraversal implements RestTraversalDescription {
     }
 
     public RestTraversalDescription filter(Predicate<Path> pathPredicate) {
-        if (pathPredicate == Traversal.returnAll()) return add("return filter",toMap("language","builtin", "name","all"));
-        if (pathPredicate == Traversal.returnAllButStartNode()) return add("return filter",toMap("language","builtin", "name","all but start node"));
+        if (pathPredicate == Traversal.returnAll()) return add("return_filter",toMap("language","builtin", "name","all"));
+        if (pathPredicate == Traversal.returnAllButStartNode()) return add("return_filter",toMap("language","builtin", "name","all but start node"));
         throw new UnsupportedOperationException("Only builtin paths supported");
     }
 
@@ -74,11 +74,11 @@ public class RestTraversal implements RestTraversalDescription {
     }
 
     public RestTraversalDescription prune(ScriptLanguage language, String code) {
-        return add("prune evaluator",toMap("language",language.name().toLowerCase(),"body",code ));
+        return add("prune_evaluator",toMap("language",language.name().toLowerCase(),"body",code ));
     }
 
     public RestTraversalDescription filter(ScriptLanguage language, String code) {
-        return add("return filter",toMap("language",language.name().toLowerCase(),"body",code ));
+        return add("return_filter",toMap("language",language.name().toLowerCase(),"body",code ));
     }
 
     public RestTraversalDescription maxDepth(int depth) {
