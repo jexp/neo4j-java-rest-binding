@@ -11,11 +11,14 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.kernel.Traversal;
-import org.neo4j.rest.graphdb.MatrixDatabaseCreator.RelTypes;
+import org.neo4j.rest.graphdb.MatrixDataGraph.RelTypes;
 import org.neo4j.test.ImpermanentGraphDatabase;
 
 
@@ -27,13 +30,13 @@ import org.neo4j.test.ImpermanentGraphDatabase;
  */
 public class MatrixDatabaseTest {
 	private static GraphDatabaseService graphDb;
+	private static MatrixDataGraph mdg;
 	
 	      @BeforeClass
 	      public static void setUp() {
 	    	  try {
 				graphDb =  new ImpermanentGraphDatabase();
-				MatrixDatabaseCreator gen = new MatrixDatabaseCreator();
-				gen.createMatrixDatabase(graphDb);
+				mdg = new MatrixDataGraph(graphDb).createNodespace();				
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -46,19 +49,11 @@ public class MatrixDatabaseTest {
 
 	      
 	      
-	      /**
-	      * Get the Neo node. (a.k.a. Thomas Anderson node)
-	      *
-	      * @return the Neo node
-	      */
-           private Node getNeoNode() {
-               return graphDb.getReferenceNode().getSingleRelationship(
-                       RelTypes.NEO_NODE, Direction.OUTGOING ).getEndNode();
-           }
+	      
            
            @Test
-           public void checkNeoProperties(){
-        	   Node neoNode = getNeoNode();    
+           public void checkNeoProperties() throws Exception {
+        	   Node neoNode = mdg.getNeoNode();    
         	   boolean isSetupCorrectly = false;
         	   if (neoNode.getProperty("age").equals(29)  &&
         		   neoNode.getProperty("name").equals("Thomas Anderson")){
@@ -73,7 +68,7 @@ public class MatrixDatabaseTest {
             */
            @Test
            public void getNeoFriends() throws Exception {
-               Node neoNode = getNeoNode();             
+               Node neoNode = mdg.getNeoNode();             
                Traverser friendsTraverser = getFriends( neoNode );
                int numberOfFriends = 0;              
                for ( Path friendPath : friendsTraverser ) {               
@@ -82,7 +77,54 @@ public class MatrixDatabaseTest {
               
                assertEquals( 4, numberOfFriends );
            }
+           
+           /**
+            * get the number of all heroes that are connected to the heroes collection node
+            * @throws Exception
+            */
+           @Test
+           public void checkNumberOfHeroes() throws Exception {                         
+               Traverser heroesTraverser = getHeroes();
+               int numberOfHeroes = 0;              
+               for ( Path heroPath : heroesTraverser ) {               
+            	   numberOfHeroes++;                 
+               }
+              
+               assertEquals( 3, numberOfHeroes );
+           }
 
+           
+           @Test
+           public void checkForIndex() throws Exception {
+        	   IndexManager index = graphDb.index();
+        	   assertTrue(index.existsForNodes("heroes"));
+           }
+           
+           @Test
+           public void checkForHeroesCollection() throws Exception {
+        	  Node heroesCollectionNode = mdg.getHeroesCollectionNode();
+        	  assertEquals( "Heroes Collection", heroesCollectionNode.getProperty("type") );
+           }
+           
+           @Test
+           public void useMorpheusQuery() throws Exception {
+        	   IndexManager index = graphDb.index();        	   
+        	   Index<Node> goodGuys = index.forNodes("heroes");
+        	   for (Node morpheus : goodGuys.query("name", "Morpheus")){
+        		   assertEquals( "Morpheus", morpheus.getProperty("name") );
+        	   }
+           }
+           
+           @Test
+           public void useTrinityIndex() throws Exception {
+        	   IndexManager index = graphDb.index();        	   
+        	   Index<Node> goodGuys = index.forNodes("heroes");
+        	   IndexHits<Node> hits = goodGuys.get( "name", "Trinity" );
+        	   Node trinity = hits.getSingle();
+        	   assertEquals( "Trinity", trinity.getProperty("name") );
+           }
+           
+          
            
            /**
             * returns a traverser for all nodes that have an outgoing relationship of the type KNOWS
@@ -91,11 +133,23 @@ public class MatrixDatabaseTest {
             */
            private static Traverser getFriends( final Node person ) {
                     TraversalDescription td = Traversal.description()
-                            .breadthFirst()
+                            .breadthFirst()                            
                             .relationships( RelTypes.KNOWS, Direction.OUTGOING )
                             .evaluator( Evaluators.excludeStartPosition() );
                     return td.traverse( person );
-                }
+           }
+           
+           /**
+            * returns a traverser for all nodes that have an outgoing relationship of the type HERO          
+            * @return the Traverser
+            */
+           private static Traverser getHeroes() {
+                    TraversalDescription td = Traversal.description()
+                            .breadthFirst()                            
+                            .relationships( RelTypes.HERO, Direction.OUTGOING )
+                            .evaluator( Evaluators.excludeStartPosition() );
+                    return td.traverse( mdg.getHeroesCollectionNode() );
+           }
 
         
            
@@ -106,7 +160,7 @@ public class MatrixDatabaseTest {
             */
            @Test
            public void findCypher() throws Exception{
-        	   Node neoNode = getNeoNode();              
+        	   Node neoNode = mdg.getNeoNode();              
                Traverser friendsTraverser = getFriends( neoNode );
                boolean foundCypher = false;
                for ( Path friendPath : friendsTraverser ) {            	  
@@ -126,7 +180,7 @@ public class MatrixDatabaseTest {
            public void getMatrixHackers() throws Exception
            {
                     
-               Traverser traverser = findHackers( getNeoNode() );
+               Traverser traverser = findHackers( mdg.getNeoNode() );
                int numberOfHackers = 0;
                for ( Path hackerPath : traverser ) {                  
                    numberOfHackers++;                  
