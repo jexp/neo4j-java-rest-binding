@@ -25,11 +25,11 @@ public class RestTraversal implements RestTraversalDescription {
         return description.toString();
     }
 
-    public TraversalDescription uniqueness(UniquenessFactory uniquenessFactory) {
+    public RestTraversalDescription uniqueness(UniquenessFactory uniquenessFactory) {
         return uniqueness(uniquenessFactory,null);
     }
 
-    public TraversalDescription uniqueness(UniquenessFactory uniquenessFactory, Object value) {
+    public RestTraversalDescription uniqueness(UniquenessFactory uniquenessFactory, Object value) {
         String uniqueness = restify(uniquenessFactory);
         add("uniqueness",value==null ? uniqueness : toMap("name",uniqueness, "value", value));
         return null;
@@ -42,7 +42,10 @@ public class RestTraversal implements RestTraversalDescription {
         throw new UnsupportedOperationException("Only values of "+Uniqueness.class+" are supported");
     }
 
-    public TraversalDescription prune(PruneEvaluator pruneEvaluator) {
+    public RestTraversalDescription prune(PruneEvaluator pruneEvaluator) {
+    	if (pruneEvaluator == PruneEvaluator.NONE) {
+              return add( "prune_evaluator", toMap( "language", "builtin", "name", "none" ) );
+        }
         Integer maxDepth= getMaxDepthValueOrNull(pruneEvaluator);
         if (maxDepth!=null) {
             return maxDepth(maxDepth);
@@ -60,38 +63,38 @@ public class RestTraversal implements RestTraversalDescription {
         }
     }
 
-    public TraversalDescription filter(Predicate<Path> pathPredicate) {
+    public RestTraversalDescription filter(Predicate<Path> pathPredicate) {
         if (pathPredicate == Traversal.returnAll()) return add("return filter",toMap("language","builtin", "name","all"));
         if (pathPredicate == Traversal.returnAllButStartNode()) return add("return filter",toMap("language","builtin", "name","all but start node"));
         throw new UnsupportedOperationException("Only builtin paths supported");
     }
 
-    public TraversalDescription evaluator(Evaluator evaluator) {
-        return null;
+    public RestTraversalDescription evaluator(Evaluator evaluator) {
+    	 throw new UnsupportedOperationException();
     }
 
-    public TraversalDescription prune(ScriptLanguage language, String code) {
+    public RestTraversalDescription prune(ScriptLanguage language, String code) {
         return add("prune evaluator",toMap("language",language.name().toLowerCase(),"body",code ));
     }
 
-    public TraversalDescription filter(ScriptLanguage language, String code) {
+    public RestTraversalDescription filter(ScriptLanguage language, String code) {
         return add("return filter",toMap("language",language.name().toLowerCase(),"body",code ));
     }
 
-    public TraversalDescription maxDepth(int depth) {
-        return add("max depth",depth);
+    public RestTraversalDescription maxDepth(int depth) {
+        return add("max_depth",depth);
     }
 
-    public TraversalDescription order(BranchOrderingPolicy branchOrderingPolicy) {
+    public RestTraversalDescription order(BranchOrderingPolicy branchOrderingPolicy) {
         throw new UnsupportedOperationException();
     }
 
-    public TraversalDescription depthFirst() {
-        return add("order","depth first");
+    public RestTraversalDescription depthFirst() {
+        return add("order","depth_first");
     }
 
-    public TraversalDescription breadthFirst() {
-        return add("order", "breadth first");
+    public RestTraversalDescription breadthFirst() {
+        return add("order", "breadth_first");
     }
 
     private RestTraversalDescription add(String key, Object value) {
@@ -99,11 +102,11 @@ public class RestTraversal implements RestTraversalDescription {
         return this;
     }
 
-    public TraversalDescription relationships(RelationshipType relationshipType) {
+    public RestTraversalDescription relationships(RelationshipType relationshipType) {
         return relationships(relationshipType, null);
     }
 
-    public TraversalDescription relationships(RelationshipType relationshipType, Direction direction) {
+    public RestTraversalDescription relationships(RelationshipType relationshipType, Direction direction) {
         if (!description.containsKey("relationships")) {
             description.put("relationships",new HashSet<Map<String,Object>>());
         }
@@ -129,7 +132,7 @@ public class RestTraversal implements RestTraversalDescription {
         return null;
     }
 
-    public TraversalDescription expand(RelationshipExpander relationshipExpander) {
+    public RestTraversalDescription expand(RelationshipExpander relationshipExpander) {
         return null;
     }
 
