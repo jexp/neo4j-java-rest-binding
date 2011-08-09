@@ -48,7 +48,7 @@ public class RestEntityTest extends RestTestBase  {
         Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
         rel.setProperty( "name", "test" );
         Assert.assertEquals( "test", rel.getProperty( "name" ) );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Relationship foundRelationship = TestHelper.firstRelationshipBetween( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
         Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
     }
 
@@ -59,11 +59,11 @@ public class RestEntityTest extends RestTestBase  {
         Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
         rel.setProperty( "name", "test" );
         Assert.assertEquals( "test", rel.getProperty( "name" ) );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Relationship foundRelationship = TestHelper.firstRelationshipBetween( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
         Assert.assertEquals( "test", foundRelationship.getProperty( "name" ) );
         rel.removeProperty( "name" );
         Assert.assertEquals( false, rel.hasProperty( "name" ) );
-        Relationship foundRelationship2 = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Relationship foundRelationship2 = TestHelper.firstRelationshipBetween( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
         Assert.assertEquals( false, foundRelationship2.hasProperty( "name" ) );
     }
 

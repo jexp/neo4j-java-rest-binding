@@ -26,7 +26,7 @@ public class RestGraphDbTest extends RestTestBase {
         Node refNode = getRestGraphDb().getReferenceNode();
         Node node = getRestGraphDb().createNode();
         Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Relationship foundRelationship = TestHelper.firstRelationshipBetween( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
         Assert.assertNotNull( "found relationship", foundRelationship );
         Assert.assertEquals( "same relationship", rel, foundRelationship );
         Assert.assertThat( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), new IsRelationshipToNodeMatcher( refNode, node ) );
