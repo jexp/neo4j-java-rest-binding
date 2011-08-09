@@ -1,6 +1,8 @@
 package org.neo4j.rest.graphdb;
 
 import org.neo4j.graphdb.*;
+import org.neo4j.helpers.collection.MapUtil;
+
 
 
 import java.net.URI;
@@ -45,7 +47,7 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
 
     private RestNode node( String uri ) {
-        return new RestNode( uri, getGraphDatabase() );
+        return new RestNode( uri, getRestGraphDatabase() );
     }
 
     public Node getStartNode() {
@@ -60,5 +62,21 @@ public class RestRelationship extends RestEntity implements Relationship {
         return type.name().equals( getStructuralData().get( "type" ) );
     }
     
+    
+    public static Relationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
+        final RestRequest restRequest = startNode.getRestRequest();
+        Map<String, Object> data = MapUtil.map("to", endNode.getUri(), "type", type.name());
+        if (props!=null && props.size()>0) {
+            data.put("data",props);
+        }
+
+        RequestResult requestResult = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
+        if ( restRequest.statusOtherThan(requestResult, javax.ws.rs.core.Response.Status.CREATED ) ) {
+            final int status = requestResult.getStatus();
+            throw new RuntimeException( "" + status);
+        }
+        final URI location = requestResult.getLocation();
+        return new RestRelationship(location, startNode.getRestGraphDatabase() );
+    }
    
 }
