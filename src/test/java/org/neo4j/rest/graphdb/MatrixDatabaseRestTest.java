@@ -91,8 +91,7 @@ public class MatrixDatabaseRestTest extends RestTestBase{
       public void checkNumberOfHeroes() throws Exception {                         
           Traverser heroesTraverser = getHeroesViaRest();
           int numberOfHeroes = 0;              
-          for ( Path heroPath : heroesTraverser ) {
-        	  System.out.println(heroPath.endNode().getProperty("type"));
+          for ( Path heroPath : heroesTraverser ) {        	
        	   numberOfHeroes++;                 
           }
          
@@ -131,6 +130,15 @@ public class MatrixDatabaseRestTest extends RestTestBase{
           Traverser heroesTraverserRest = getHeroesViaRest();
           Traverser heroesTraverserByCollection = getHeroesByCollectionNodeViaRest();
           assertEquals( heroesTraverserRest.nodes().iterator().next(), heroesTraverserByCollection.nodes().iterator().next() );
+      }
+      
+      @Test
+      public void compareIndexAndTraversal() throws Exception {
+   	   IndexManager index = this.restmdg.getGraphDatabase().index();        	   
+   	   Index<Node> goodGuys = index.forNodes("heroes");
+   	   IndexHits<Node> hits = goodGuys.query( "name", "*" );   	  
+   	   Traverser heroesTraverser = getHeroesViaRest();               
+          assertEquals( heroesTraverser.nodes().iterator().next().getId(), hits.iterator().next().getId() );
       }
       
       

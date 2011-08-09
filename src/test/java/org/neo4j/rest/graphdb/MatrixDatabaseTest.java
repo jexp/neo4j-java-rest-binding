@@ -125,6 +125,15 @@ public class MatrixDatabaseTest {
         	   assertEquals( "Trinity", trinity.getProperty("name") );
            }
            
+           @Test
+           public void compareIndexAndTraversal() throws Exception {
+        	   IndexManager index = graphDb.index();        	   
+        	   Index<Node> goodGuys = index.forNodes("heroes");
+        	   IndexHits<Node> hits = goodGuys.query( "name", "*" );        	  
+        	   Traverser heroesTraverser = getHeroes();               
+               assertEquals( heroesTraverser.nodes().iterator().next().getId(), hits.iterator().next().getId() );
+           }
+           
            
            @Test
            public void checkTraverseByProperties() throws Exception {    	  
