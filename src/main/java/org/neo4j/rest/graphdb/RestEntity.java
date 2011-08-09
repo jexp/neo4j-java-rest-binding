@@ -1,6 +1,7 @@
 package org.neo4j.rest.graphdb;
 
 
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
@@ -155,8 +156,12 @@ public class RestEntity implements PropertyContainer {
         return getClass().equals( o.getClass() ) && getId() == ( (RestEntity) o ).getId();
     }
 
-    public RestGraphDatabase getGraphDatabase() {
+    public RestGraphDatabase getRestGraphDatabase() {
         return graphDatabase;
+    }
+    
+    public GraphDatabaseService getGraphDatabase() {
+        throw new UnsupportedOperationException("No GraphDatabaseService semantics for the REST-API");
     }
 
     public RestRequest getRestRequest() {
