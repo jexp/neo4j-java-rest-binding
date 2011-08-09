@@ -20,6 +20,7 @@ public class MatrixDataGraph {
 	 public enum RelTypes implements RelationshipType{
 	     NEO_NODE,
 	     KNOWS,
+	     FIGHTS,
 	     CODED_BY,
 	     PERSONS_REFERENCE,	    
 	     HEROES_REFERENCE,
@@ -109,6 +110,7 @@ public class MatrixDataGraph {
 	         smith.setProperty( "name", "Agent Smith" );
 	         smith.setProperty( "version", "1.0b" );
 	         smith.setProperty("type", "villain");
+	         neo.createRelationshipTo( smith, RelTypes.FIGHTS );
 	         rel = cypher.createRelationshipTo( smith, RelTypes.KNOWS );
 	         rel.setProperty( "age", "6 months" );
 	         rel.setProperty( "disclosure", "secret" );	 
