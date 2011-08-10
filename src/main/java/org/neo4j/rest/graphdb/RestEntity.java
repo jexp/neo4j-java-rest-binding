@@ -156,12 +156,9 @@ public class RestEntity implements PropertyContainer {
         return getClass().equals( o.getClass() ) && getId() == ( (RestEntity) o ).getId();
     }
 
-    public RestGraphDatabase getRestGraphDatabase() {
-        return graphDatabase;
-    }
-    
-    public GraphDatabaseService getGraphDatabase() {
-        throw new UnsupportedOperationException("No GraphDatabaseService semantics for the REST-API");
+       
+    public RestGraphDatabase getGraphDatabase() {
+    	 return graphDatabase;
     }
 
     public RestRequest getRestRequest() {

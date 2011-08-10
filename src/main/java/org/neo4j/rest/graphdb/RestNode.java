@@ -40,7 +40,7 @@ public class RestNode extends RestEntity implements Node {
                 (Collection<Object>) restRequest.toEntity( requestResult ) ) {
             @Override
             protected Relationship underlyingObjectToObject( Object data ) {
-                return new RestRelationship( (Map<?, ?>) data, getRestGraphDatabase() );
+                return new RestRelationship( (Map<?, ?>) data, getGraphDatabase() );
             }
         };
     }

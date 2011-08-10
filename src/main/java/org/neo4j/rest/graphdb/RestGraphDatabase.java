@@ -69,6 +69,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
         }
         return new RestNode( response.getLocation(), this );
     }
+       
 
     public boolean enableRemoteShell() {
         throw new UnsupportedOperationException();

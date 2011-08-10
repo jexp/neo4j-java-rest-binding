@@ -144,7 +144,7 @@ public class RestTraversal implements RestTraversalDescription {
         if (request.statusOtherThan(result, Response.Status.OK)) throw new RuntimeException(String.format("Error executing traversal: %d %s",result.getStatus(), traversalJson));
         final Object col = request.toEntity(result);
         if (!(col instanceof Collection)) throw new RuntimeException(String.format("Unexpected traversal result, %s instead of collection", col!=null ? col.getClass() : null));
-        return new RestTraverser((Collection) col,restNode.getRestGraphDatabase());
+        return new RestTraverser((Collection) col,restNode.getGraphDatabase());
     }
 
     public static RestTraversalDescription description() {
