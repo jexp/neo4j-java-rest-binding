@@ -27,7 +27,12 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     public RestGraphDatabase( URI uri, String user, String password ) {
         restRequest = new RestRequest( uri, user, password );
     }
-
+    
+    
+    public RestAPI getRestAPI(){
+    	return new RestAPI(this.restRequest, this);
+    }
+    
     public Transaction beginTx() {
         return new Transaction() {
             public void success() {
@@ -58,7 +63,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
         throw new UnsupportedOperationException();
     }
 
-    public IndexManager index() {
+    public RestIndexManager index() {
         return new RestIndexManager( restRequest, this );
     }
 
