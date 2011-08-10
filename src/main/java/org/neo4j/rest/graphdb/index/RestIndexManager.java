@@ -102,14 +102,12 @@ public class RestIndexManager implements IndexManager {
 
 	@Override
 	public AutoIndexer<Node> getNodeAutoIndexer() {
-		// TODO Auto-generated method stub
-		return null;
+		 throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public RelationshipAutoIndexer getRelationshipAutoIndexer() {
-		// TODO Auto-generated method stub
-		return null;
+		 throw new UnsupportedOperationException();
 	}
 }
 
