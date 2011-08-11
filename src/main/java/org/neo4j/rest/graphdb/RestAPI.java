@@ -9,13 +9,13 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
 
 public class RestAPI  {
 	
 	  private RestRequest restRequest;
-	  private long propertyRefetchTimeInMillis = 1000;
 	  @Deprecated
 	  private RestGraphDatabase restGraphDatabase;
 	  
@@ -24,7 +24,7 @@ public class RestAPI  {
 		  this.restGraphDatabase = restGraphDatabase;
 	  }
 	  
-	  
+	 	  
 	  public Node createNode(Map<String, Object> props) {
 	        RequestResult requestResult = restRequest.post("node", JsonHelper.createJsonFrom( props ));
 	        if ( restRequest.statusOtherThan(requestResult, Status.CREATED) ) {
@@ -47,12 +47,13 @@ public class RestAPI  {
 	        throw new IllegalArgumentException("Index "+indexName+" does not yet exist");
 	  }
 	  
-	  public <T extends PropertyContainer> Index<T> createIndex(Class<T> type, String indexName, boolean fullText) {
+	  public <T extends PropertyContainer> Index<T> createIndex(Class<T> type, String indexName, boolean fullText) {		  
+		    Map<String, String> config = fullText ? LuceneIndexImplementation.FULLTEXT_CONFIG : LuceneIndexImplementation.EXACT_CONFIG;
 	        if (Node.class.isAssignableFrom(type)) {	        	
-	        	return (Index<T>) this.restGraphDatabase.index().forNodes(indexName);
+	        	return (Index<T>) this.restGraphDatabase.index().forNodes(indexName, config);
 	        }
 	        if (Relationship.class.isAssignableFrom(type)){
-	        	return (Index<T>) this.restGraphDatabase.index().forRelationships(indexName);
+	        	return (Index<T>) this.restGraphDatabase.index().forRelationships(indexName, config);
 	        }
 	        throw new IllegalArgumentException("Required Node or Relationship types to create index, got "+type);
 	  }

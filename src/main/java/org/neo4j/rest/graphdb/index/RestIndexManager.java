@@ -9,6 +9,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipAutoIndexer;
 import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
@@ -40,13 +41,43 @@ public class RestIndexManager implements IndexManager {
         if ( restRequest.statusIs( response, ClientResponse.Status.NO_CONTENT ) ) return Collections.emptyMap();
         return (Map<String, ?>) restRequest.toMap( response );
     }
+    
+    @SuppressWarnings("unchecked")
+	private boolean checkIndex(  final String indexType, final String indexName, Map<String, String> config ){
+    	Map<String, String> existingConfig = (Map<String, String>) indexInfo(indexType).get(indexName);
+    	if (config == null){
+    		return existingConfig!=null;
+    	}else {
+    		if (existingConfig == null){
+    			return false;
+    		}else{      			
+    			if (existingConfig.entrySet().containsAll(config.entrySet())){    				
+    				return true;
+    			}else{
+    				throw new IllegalArgumentException("Index with the same name but different config exists!");
+    			}    			
+    		}    		
+    	}    	
+    }
+    
+    public boolean noConfigProvided(Map<String,String> config) { 
+    	return config == null || config.isEmpty();
+    }
 
     public Index<Node> forNodes( String indexName ) {
+    	if (!checkIndex(NODE, indexName, null)){    		
+    		createIndex(NODE, indexName,  LuceneIndexImplementation.EXACT_CONFIG);
+    	}
         return new RestNodeIndex( restRequest, indexName, restGraphDatabase );
     }
 
-    public Index<Node> forNodes( String indexName, Map<String, String> config ) {
-        createIndex(NODE, indexName, config);
+    public Index<Node> forNodes( String indexName, Map<String, String> config ) { 
+    	if (noConfigProvided(config)){
+    		throw new IllegalArgumentException("No index configuration was provided!");
+    	}
+    	if (!checkIndex(NODE, indexName, config)){
+    		createIndex(NODE, indexName, config);
+    	}    	
         return new RestNodeIndex( restRequest, indexName, restGraphDatabase );
     }
 
@@ -60,11 +91,19 @@ public class RestIndexManager implements IndexManager {
     }
 
     public RelationshipIndex forRelationships( String indexName ) {
+    	if (!checkIndex(RELATIONSHIP, indexName, null)){    		
+    		createIndex(RELATIONSHIP, indexName,  LuceneIndexImplementation.EXACT_CONFIG);
+    	}
         return new RestRelationshipIndex( restRequest, indexName, restGraphDatabase );
     }
 
     public RelationshipIndex forRelationships( String indexName, Map<String, String> config ) {
-        createIndex(RELATIONSHIP, indexName, config);
+    	if (noConfigProvided(config)){
+    		throw new IllegalArgumentException("No index configuration was provided!");
+    	}
+    	if (!checkIndex(RELATIONSHIP, indexName, config)){
+    		createIndex(RELATIONSHIP, indexName, config);
+    	}    
         return new RestRelationshipIndex( restRequest, indexName, restGraphDatabase );
     }
 
