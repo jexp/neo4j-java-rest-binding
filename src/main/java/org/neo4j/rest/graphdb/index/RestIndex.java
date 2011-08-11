@@ -6,6 +6,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestEntity;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
@@ -23,12 +24,12 @@ import java.util.Map;
 public abstract class RestIndex<T extends PropertyContainer> implements Index<T> {
     private final RestRequest restRequest;
     private final String indexName;
-    protected final RestGraphDatabase restGraphDatabase;
+    protected final RestAPI restApi;
 
-    RestIndex( RestRequest restRequest, String indexName, RestGraphDatabase restGraphDatabase ) {
+    RestIndex( RestRequest restRequest, String indexName, RestAPI restApi ) {
         this.restRequest = restRequest;
         this.indexName = indexName;
-        this.restGraphDatabase = restGraphDatabase;
+        this.restApi = restApi;
     }
 
     public String getName() {

@@ -12,6 +12,7 @@ import org.neo4j.graphdb.index.RelationshipIndex;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
 
@@ -24,11 +25,11 @@ public class RestIndexManager implements IndexManager {
     public static final String RELATIONSHIP = "relationship";
     public static final String NODE = "node";
     private RestRequest restRequest;
-    private RestGraphDatabase restGraphDatabase;
+    private RestAPI restApi;
 
-    public RestIndexManager( RestRequest restRequest, RestGraphDatabase restGraphDatabase ) {
+    public RestIndexManager( RestRequest restRequest, RestAPI restApi ) {
         this.restRequest = restRequest;
-        this.restGraphDatabase = restGraphDatabase;
+        this.restApi = restApi;
     }
 
     public boolean existsForNodes( String indexName ) {
@@ -68,7 +69,7 @@ public class RestIndexManager implements IndexManager {
     	if (!checkIndex(NODE, indexName, null)){    		
     		createIndex(NODE, indexName,  LuceneIndexImplementation.EXACT_CONFIG);
     	}
-        return new RestNodeIndex( restRequest, indexName, restGraphDatabase );
+        return new RestNodeIndex( restRequest, indexName, restApi );
     }
 
     public Index<Node> forNodes( String indexName, Map<String, String> config ) { 
@@ -78,7 +79,7 @@ public class RestIndexManager implements IndexManager {
     	if (!checkIndex(NODE, indexName, config)){
     		createIndex(NODE, indexName, config);
     	}    	
-        return new RestNodeIndex( restRequest, indexName, restGraphDatabase );
+        return new RestNodeIndex( restRequest, indexName, restApi );
     }
 
     public String[] nodeIndexNames() {
@@ -94,7 +95,7 @@ public class RestIndexManager implements IndexManager {
     	if (!checkIndex(RELATIONSHIP, indexName, null)){    		
     		createIndex(RELATIONSHIP, indexName,  LuceneIndexImplementation.EXACT_CONFIG);
     	}
-        return new RestRelationshipIndex( restRequest, indexName, restGraphDatabase );
+        return new RestRelationshipIndex( restRequest, indexName, restApi );
     }
 
     public RelationshipIndex forRelationships( String indexName, Map<String, String> config ) {
@@ -104,7 +105,7 @@ public class RestIndexManager implements IndexManager {
     	if (!checkIndex(RELATIONSHIP, indexName, config)){
     		createIndex(RELATIONSHIP, indexName, config);
     	}    
-        return new RestRelationshipIndex( restRequest, indexName, restGraphDatabase );
+        return new RestRelationshipIndex( restRequest, indexName, restApi );
     }
 
     private void createIndex(String type, String indexName, Map<String, String> config) {

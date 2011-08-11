@@ -19,8 +19,8 @@ import com.sun.jersey.api.NotFoundException;
 
 public class RestAPI  {
 	
-	  private RestRequest restRequest;  
-
+	  private final RestRequest restRequest;  
+	  private long propertyRefetchTimeInMillis = 1000;
 
 	  
 	  public RestAPI(RestRequest restRequest){
@@ -28,16 +28,20 @@ public class RestAPI  {
 	  }
 	  
 	  public RestAPI( URI uri ) {
-	      restRequest = new RestRequest( uri );	       
+	      this(new RestRequest( uri ));	       
 	  }
 
 	  public RestAPI( URI uri, String user, String password ) {
-	      restRequest = new RestRequest( uri, user, password );	      
+	      this(new RestRequest( uri, user, password ));	      
 	  }
 	  
+	  private RestGraphDatabase createRestGraphDatabase(){
+		  return new RestGraphDatabase(this);
+	  }
+
 	 
 	  public RestIndexManager index() {
-	        return new RestIndexManager( restRequest, new RestGraphDatabase(this));
+	        return new RestIndexManager( restRequest, this);
 	  }
 	  
 	  public Node getNodeById( long id ) {
@@ -45,7 +49,7 @@ public class RestAPI  {
 	        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
 	            throw new NotFoundException( "" + id );
 	        }
-	        return new RestNode( restRequest.toMap( response ), new RestGraphDatabase(this) );
+	        return new RestNode( restRequest.toMap( response ), this );
 	  }
 	  
 	  public Relationship getRelationshipById(long id) {
@@ -53,12 +57,9 @@ public class RestAPI  {
 	        if ( restRequest.statusIs(requestResult, Status.NOT_FOUND ) ) {
 	            throw new NotFoundException( "" + id );
 	        }
-	        return new RestRelationship( restRequest.toMap(requestResult), new RestGraphDatabase(this) );
+	        return new RestRelationship( restRequest.toMap(requestResult), this );
 	  }
-	  
-	  public Node createNode() {
-	        return createNode(null);
-	  }
+	  	  
 	  
 	  public Node createNode(Map<String, Object> props) {
 	        RequestResult requestResult = restRequest.post("node", JsonHelper.createJsonFrom( props ));
@@ -67,7 +68,7 @@ public class RestAPI  {
 	            throw new RuntimeException( "" + status);
 	        }
 	        final URI location = requestResult.getLocation();
-	        return new RestNode(location, new RestGraphDatabase(this) );
+	        return new RestNode(location, this );
 	  }
 	  
 	  public Relationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {
@@ -95,15 +96,8 @@ public class RestAPI  {
 	  
 	  public RestRequest getRestRequest() {
 			return restRequest;
-	  }
-	  
-	  public Iterable<Node> getAllNodes() {
-	        throw new UnsupportedOperationException();
-	  }
-	  
-	  public Iterable<RelationshipType> getRelationshipTypes() {
-	        throw new UnsupportedOperationException();
-	  }
+	  }	  
+	 
 	  
 	  public TraversalDescription createTraversalDescription() {
 	        return new RestTraversal();
@@ -111,9 +105,18 @@ public class RestAPI  {
 	  
 	  public Node getReferenceNode() {
 	        Map<?, ?> map = restRequest.toMap( restRequest.get( "" ) );
-	        return new RestNode( (String) map.get( "reference_node" ), new RestGraphDatabase(this) );
+	        return new RestNode( (String) map.get( "reference_node" ), this);
 	  }
-
+	  
+	  public long getPropertyRefetchTimeInMillis() {
+	        return propertyRefetchTimeInMillis;
+	  }
+	  
+	  public String getStoreDir() {
+	     return restRequest.getUri().toString();
+	  }
+	  
+	 
 
 
 }

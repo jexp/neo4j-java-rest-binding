@@ -10,16 +10,16 @@ import java.util.Map;
 
 public class RestRelationship extends RestEntity implements Relationship {
 
-    RestRelationship( URI uri, RestGraphDatabase graphDatabaseService ) {
-        super( uri, graphDatabaseService );
+    RestRelationship( URI uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    RestRelationship( String uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    RestRelationship( String uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestRelationship( Map<?, ?> data, RestGraphDatabase graphDatabase ) {
-        super( data, graphDatabase );
+    public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
+        super( data, restApi );
     }
 
     public Node getEndNode() {
@@ -47,7 +47,7 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
 
     private RestNode node( String uri ) {
-        return new RestNode( uri, getGraphDatabase() );
+        return new RestNode( uri, getRestApi() );
     }
 
     public Node getStartNode() {
@@ -76,7 +76,7 @@ public class RestRelationship extends RestEntity implements Relationship {
             throw new RuntimeException( "" + status);
         }
         final URI location = requestResult.getLocation();
-        return new RestRelationship(location, startNode.getGraphDatabase() );
+        return new RestRelationship(location, startNode.getRestApi() );
     }
    
 }

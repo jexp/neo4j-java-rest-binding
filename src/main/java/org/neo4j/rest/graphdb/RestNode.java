@@ -14,16 +14,16 @@ import java.util.Collection;
 import java.util.Map;
 
 public class RestNode extends RestEntity implements Node {
-    public RestNode( URI uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    public RestNode( URI uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestNode( String uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    public RestNode( String uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestNode( Map<?, ?> data, RestGraphDatabase graphDatabase ) {
-        super( data, graphDatabase );
+    public RestNode( Map<?, ?> data, RestAPI restApi ) {
+        super( data, restApi );
     }
 
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
@@ -40,7 +40,7 @@ public class RestNode extends RestEntity implements Node {
                 (Collection<Object>) restRequest.toEntity( requestResult ) ) {
             @Override
             protected Relationship underlyingObjectToObject( Object data ) {
-                return new RestRelationship( (Map<?, ?>) data, getGraphDatabase() );
+                return new RestRelationship( (Map<?, ?>) data, getRestApi() );
             }
         };
     }

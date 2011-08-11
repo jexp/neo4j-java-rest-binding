@@ -12,32 +12,30 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
-public class RestGraphDatabase extends AbstractGraphDatabase {
-    private RestRequest restRequest;
-    private long propertyRefetchTimeInMillis = 1000;
+public class RestGraphDatabase extends AbstractGraphDatabase {   
     private RestAPI restAPI;
 
     
     public RestGraphDatabase( RestAPI api){
-    	this.restAPI = api;
-    	this.restRequest = api.getRestRequest();
+    	this.restAPI = api;    	
     }
     
-    public RestGraphDatabase( URI uri ) {
-        restRequest = new RestRequest( uri );
-        this.restAPI = new RestAPI(restRequest);
+    public RestGraphDatabase( URI uri ) {     
+        this( new RestRequest( uri ));
     }
 
-    public RestGraphDatabase( URI uri, String user, String password ) {
-        restRequest = new RestRequest( uri, user, password );
-        this.restAPI = new RestAPI(restRequest);
+    public RestGraphDatabase( URI uri, String user, String password ) {        
+        this(new RestRequest( uri, user, password ));
     }
+    
+    public RestGraphDatabase( RestRequest restRequest){
+    	this(new RestAPI(restRequest)); 	
+    }
+    
+    
     
     
     public RestAPI getRestAPI(){
-    	if (this.restAPI == null){
-    		this.restAPI = new RestAPI(restRequest);
-    	}
     	return this.restAPI;
     }
     
@@ -76,7 +74,7 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Node createNode() {
-    	return this.restAPI.createNode();
+    	return this.restAPI.createNode(null);
     }
        
 
@@ -89,7 +87,11 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Iterable<Node> getAllNodes() {
-       return this.restAPI.getAllNodes();
+        throw new UnsupportedOperationException();
+    }
+  
+    public Iterable<RelationshipType> getRelationshipTypes() {
+        throw new UnsupportedOperationException();
     }
 
     public Node getNodeById( long id ) {
@@ -102,25 +104,21 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
 
     public Relationship getRelationshipById( long id ) {
     	return this.restAPI.getRelationshipById(id);
-    }
-
-    public Iterable<RelationshipType> getRelationshipTypes() {
-        return this.restAPI.getRelationshipTypes();
-    }
+    }    
 
     public void shutdown() {
     }
 
     public RestRequest getRestRequest() {
-        return restRequest;
+        return this.restAPI.getRestRequest();
     }
 
     public long getPropertyRefetchTimeInMillis() {
-        return propertyRefetchTimeInMillis;
+        return this.restAPI.getPropertyRefetchTimeInMillis();
 	}
     @Override
     public String getStoreDir() {
-        return restRequest.getUri().toString();
+        return this.restAPI.getStoreDir();
     }
 
     @Override
