@@ -39,7 +39,7 @@
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-kernel</artifactId>
             <version>${neo4j.version}</version>
-            <classifier>tests</classifier>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.neo4j.app</groupId>
@@ -100,16 +100,16 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-lucene-index</artifactId>
             <version>${neo4j.version}</version>
-        </dependency>
-        <dependency>
+        </dependency> 
+      <!--  <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
             <version>3.0.1</version>
-        </dependency>
+        </dependency>  -->
         <!-- Server example dependencies -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
