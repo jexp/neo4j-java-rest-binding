@@ -127,9 +127,7 @@ public class RestTraversal implements RestTraversalDescription {
     }
 
     private String directionString(Direction direction) {
-        if (direction==Direction.INCOMING) return "in";
-        if (direction==Direction.OUTGOING) return "out";
-        return null;
+        return RestDirection.from(direction).shortName;
     }
 
     public RestTraversalDescription expand(RelationshipExpander relationshipExpander) {

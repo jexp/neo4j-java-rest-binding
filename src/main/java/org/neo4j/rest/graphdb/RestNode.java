@@ -58,36 +58,13 @@ public class RestNode extends RestEntity implements Node {
     }
 
 
-    enum RestDirection {
-        INCOMING( Direction.INCOMING, "incoming", "in" ),
-        OUTGOING( Direction.OUTGOING, "outgoing", "out" ),
-        BOTH( Direction.BOTH, "all", "all" );
-
-        public final Direction direction;
-        public final String dataName;
-        public final String pathName;
-
-        RestDirection( Direction direction, String dataName, String pathName ) {
-            this.direction = direction;
-            this.dataName = dataName;
-            this.pathName = pathName;
-        }
-
-        static RestDirection from( Direction direction ) {
-            for ( RestDirection restDirection : values() ) {
-                if ( restDirection.direction == direction ) return restDirection;
-            }
-            throw new RuntimeException( "No Rest-Direction for " + direction );
-        }
-    }
-
     public Iterable<Relationship> getRelationships( Direction direction ) {
-        return wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).pathName ) );
+        return wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).shortName ) );
     }
 
     public Iterable<Relationship> getRelationships( RelationshipType type,
                                                     Direction direction ) {
-        String relationshipsKey = RestDirection.from( direction ).dataName + "_relationships";
+        String relationshipsKey = RestDirection.from( direction ).longName + "_relationships";
         Object relationship = getStructuralData().get( relationshipsKey );
         return wrapRelationships( restRequest.get( relationship + "/" + type.name() ) );
     }

@@ -63,7 +63,7 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
     
     
-    public static Relationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
+    public static RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
         final RestRequest restRequest = startNode.getRestRequest();
         Map<String, Object> data = MapUtil.map("to", endNode.getUri(), "type", type.name());
         if (props!=null && props.size()>0) {
