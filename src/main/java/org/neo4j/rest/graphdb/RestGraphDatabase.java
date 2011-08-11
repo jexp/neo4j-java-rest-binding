@@ -1,16 +1,13 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.NotFoundException;
+
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.KernelEventHandler;
 import org.neo4j.graphdb.event.TransactionEventHandler;
-import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.kernel.AbstractGraphDatabase;
 import org.neo4j.kernel.Config;
 import org.neo4j.kernel.RestConfig;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
-
-import javax.ws.rs.core.Response.Status;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
@@ -18,19 +15,30 @@ import java.util.Map;
 public class RestGraphDatabase extends AbstractGraphDatabase {
     private RestRequest restRequest;
     private long propertyRefetchTimeInMillis = 1000;
+    private RestAPI restAPI;
 
-
+    
+    public RestGraphDatabase( RestAPI api){
+    	this.restAPI = api;
+    	this.restRequest = api.getRestRequest();
+    }
+    
     public RestGraphDatabase( URI uri ) {
         restRequest = new RestRequest( uri );
+        this.restAPI = new RestAPI(restRequest);
     }
 
     public RestGraphDatabase( URI uri, String user, String password ) {
         restRequest = new RestRequest( uri, user, password );
+        this.restAPI = new RestAPI(restRequest);
     }
     
     
     public RestAPI getRestAPI(){
-    	return new RestAPI(this.restRequest, this);
+    	if (this.restAPI == null){
+    		this.restAPI = new RestAPI(restRequest);
+    	}
+    	return this.restAPI;
     }
     
     public Transaction beginTx() {
@@ -64,15 +72,11 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public RestIndexManager index() {
-        return new RestIndexManager( restRequest, this );
+       return this.restAPI.index();
     }
 
     public Node createNode() {
-    	RequestResult response = restRequest.post( "node", null );
-        if ( restRequest.statusOtherThan( response, Status.CREATED ) ) {
-            throw new RuntimeException( "" + response.getStatus() );
-        }
-        return new RestNode( response.getLocation(), this );
+    	return this.restAPI.createNode();
     }
        
 
@@ -85,32 +89,23 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     }
 
     public Iterable<Node> getAllNodes() {
-        throw new UnsupportedOperationException();
+       return this.restAPI.getAllNodes();
     }
 
     public Node getNodeById( long id ) {
-    	RequestResult response = restRequest.get( "node/" + id );
-        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
-            throw new NotFoundException( "" + id );
-        }
-        return new RestNode( restRequest.toMap( response ), this );
+    	return this.restAPI.getNodeById(id);
     }
 
     public Node getReferenceNode() {
-        Map<?, ?> map = restRequest.toMap( restRequest.get( "" ) );
-        return new RestNode( (String) map.get( "reference_node" ), this );
+        return this.restAPI.getReferenceNode();
     }
 
     public Relationship getRelationshipById( long id ) {
-    	RequestResult response = restRequest.get( "relationship/" + id );
-        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
-            throw new NotFoundException( "" + id );
-        }
-        return new RestRelationship( restRequest.toMap( response ), this );
+    	return this.restAPI.getRelationshipById(id);
     }
 
     public Iterable<RelationshipType> getRelationshipTypes() {
-        throw new UnsupportedOperationException();
+        return this.restAPI.getRelationshipTypes();
     }
 
     public void shutdown() {
