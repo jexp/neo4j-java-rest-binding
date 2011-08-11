@@ -23,7 +23,8 @@ public class RestAPI  {
 	  private long propertyRefetchTimeInMillis = 1000;
 
 	  
-	  public RestAPI(RestRequest restRequest){
+	 
+	public RestAPI(RestRequest restRequest){
 		  this.restRequest = restRequest;		
 	  }
 	  
@@ -33,11 +34,8 @@ public class RestAPI  {
 
 	  public RestAPI( URI uri, String user, String password ) {
 	      this(new RestRequest( uri, user, password ));	      
-	  }
-	  
-	  private RestGraphDatabase createRestGraphDatabase(){
-		  return new RestGraphDatabase(this);
-	  }
+	  }	  
+	 
 
 	 
 	  public RestIndexManager index() {
@@ -71,7 +69,7 @@ public class RestAPI  {
 	        return new RestNode(location, this );
 	  }
 	  
-	  public Relationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {
+	  public RestRelationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {
 	        return RestRelationship.create((RestNode)startNode,(RestNode)endNode,type,props);
 	  }
 	  
@@ -117,6 +115,9 @@ public class RestAPI  {
 	  }
 	  
 	 
+	  public void setPropertyRefetchTimeInMillis(long propertyRefetchTimeInMillis) {
+			this.propertyRefetchTimeInMillis = propertyRefetchTimeInMillis;
+	 }
 
 
 }
