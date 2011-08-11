@@ -60,12 +60,12 @@ public class RelationshipHasMatcher extends TypeSafeMatcher<Iterable<Relationshi
 		return new RelationshipHasMatcher(startNode, direction, types);
 	}
 	
-	public static List<String> fillTypeNames(List<RelationshipType> tmptypes){
-		List<String> tmpNames = new ArrayList<String>();
-		for (RelationshipType type : tmptypes) {
-			tmpNames.add(type.name());
+	public static List<String> fillTypeNames(List<RelationshipType> types){
+		List<String> names = new ArrayList<String>();
+		for (RelationshipType type : types) {
+			names.add(type.name());
 		}
-		return tmpNames;
+		return names;
 	}
 
 }
