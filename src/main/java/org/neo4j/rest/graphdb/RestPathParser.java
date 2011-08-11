@@ -14,7 +14,7 @@ import java.util.Map;
  * @since 03.02.11
  */
 public class RestPathParser {
-    public static Path parse(Map path, final RestGraphDatabase restGraphDatabase) {
+    public static Path parse(Map path, final RestAPI restApi) {
         final Collection<Map<?, ?>> nodesData = (Collection<Map<?, ?>>) path.get("nodes");
         final Collection<Map<?, ?>> relationshipsData = (Collection<Map<?, ?>>) path.get("relationships");
         final Map<?, ?> lastRelationshipData = lastElement(relationshipsData);
@@ -23,20 +23,20 @@ public class RestPathParser {
         final Integer length = (Integer) path.get("length");
 
         return new SimplePath(
-                new RestNode(startData,restGraphDatabase),
-                new RestNode(endData,restGraphDatabase),
-                new RestRelationship(lastRelationshipData,restGraphDatabase),
+                new RestNode(startData,restApi),
+                new RestNode(endData,restApi),
+                new RestRelationship(lastRelationshipData,restApi),
                 length,
                 new IterableWrapper<Node, Map<?,?>>(nodesData) {
                     @Override
                     protected Node underlyingObjectToObject(Map<?, ?> data) {
-                        return new RestNode(data,restGraphDatabase);
+                        return new RestNode(data,restApi);
                     }
                 },
                 new IterableWrapper<Relationship, Map<?,?>>(relationshipsData) {
                     @Override
                     protected Relationship underlyingObjectToObject(Map<?, ?> data) {
-                        return new RestRelationship(data,restGraphDatabase);
+                        return new RestRelationship(data,restApi);
                     }
                 });
     }

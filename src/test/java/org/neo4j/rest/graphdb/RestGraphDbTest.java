@@ -10,23 +10,23 @@ public class RestGraphDbTest extends RestTestBase {
 
     @Test
     public void testGetRefNode() {
-        Node refNode = graphDb.getReferenceNode();
-        Node nodeById = graphDb.getNodeById( 0 );
+        Node refNode = getRestGraphDb().getReferenceNode();
+        Node nodeById = getRestGraphDb().getNodeById( 0 );
         Assert.assertEquals( refNode, nodeById );
     }
 
     @Test
     public void testCreateNode() {
-        Node node = graphDb.createNode();
-        Assert.assertEquals( node, graphDb.getNodeById( node.getId() ) );
+        Node node = getRestGraphDb().createNode();
+        Assert.assertEquals( node, getRestGraphDb().getNodeById( node.getId() ) );
     }
 
     @Test
     public void testCreateRelationship() {
-        Node refNode = graphDb.getReferenceNode();
-        Node node = graphDb.createNode();
+        Node refNode = getRestGraphDb().getReferenceNode();
+        Node node = getRestGraphDb().createNode();
         Relationship rel = refNode.createRelationshipTo( node, Type.TEST );
-        Relationship foundRelationship = IsRelationshipToNodeMatcher.relationshipFromTo( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
+        Relationship foundRelationship = TestHelper.firstRelationshipBetween( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), refNode, node );
         Assert.assertNotNull( "found relationship", foundRelationship );
         Assert.assertEquals( "same relationship", rel, foundRelationship );
         Assert.assertThat( refNode.getRelationships( Type.TEST, Direction.OUTGOING ), new IsRelationshipToNodeMatcher( refNode, node ) );
@@ -37,8 +37,8 @@ public class RestGraphDbTest extends RestTestBase {
 
     @Test
     public void testBasic() {
-        Node refNode = graphDb.getReferenceNode();
-        Node node = graphDb.createNode();
+        Node refNode = getRestGraphDb().getReferenceNode();
+        Node node = getRestGraphDb().createNode();
         Relationship rel = refNode.createRelationshipTo( node,
                 DynamicRelationshipType.withName( "TEST" ) );
         rel.setProperty( "date", new Date().getTime() );

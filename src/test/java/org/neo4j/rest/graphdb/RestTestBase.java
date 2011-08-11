@@ -16,7 +16,7 @@ import java.util.Iterator;
 
 public class RestTestBase {
 
-    protected GraphDatabaseService graphDb;
+    private GraphDatabaseService restGraphDb;
     private static final String HOSTNAME = "localhost";
     private static final int PORT = 7474;
     private static LocalTestServer neoServer = new LocalTestServer(HOSTNAME,PORT).withPropertiesFile("neo4j-server.properties");
@@ -32,12 +32,12 @@ public class RestTestBase {
     @Before
     public void setUp() throws URISyntaxException {
         neoServer.cleanDb();
-        graphDb = new RestGraphDatabase(new URI(SERVER_ROOT_URI));
+        restGraphDb = new RestGraphDatabase(new URI(SERVER_ROOT_URI));
     }
 
     @After
     public void tearDown() throws Exception {
-        graphDb.shutdown();
+        restGraphDb.shutdown();
     }
 
     @AfterClass
@@ -49,10 +49,19 @@ public class RestTestBase {
     protected Relationship relationship() {
         Iterator<Relationship> it = node().getRelationships(Direction.OUTGOING).iterator();
         if (it.hasNext()) return it.next();
-        return node().createRelationshipTo(graphDb.createNode(), Type.TEST);
+        return node().createRelationshipTo(restGraphDb.createNode(), Type.TEST);
     }
 
     protected Node node() {
-        return graphDb.getReferenceNode();
+        return restGraphDb.getReferenceNode();
     }
+    
+    protected GraphDatabaseService getGraphDatabase() {
+    	return neoServer.getGraphDatabase();
+    }
+
+	protected GraphDatabaseService getRestGraphDb() {
+		return restGraphDb;
+	}
+	
 }

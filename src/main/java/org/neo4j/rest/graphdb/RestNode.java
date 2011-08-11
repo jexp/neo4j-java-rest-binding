@@ -1,41 +1,33 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import static java.util.Arrays.asList;
+
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Traverser.Order;
+import org.neo4j.helpers.collection.CombiningIterable;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.rest.graphdb.RequestResult;
 
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
 public class RestNode extends RestEntity implements Node {
-    public RestNode( URI uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    public RestNode( URI uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestNode( String uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    public RestNode( String uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestNode( Map<?, ?> data, RestGraphDatabase graphDatabase ) {
-        super( data, graphDatabase );
+    public RestNode( Map<?, ?> data, RestAPI restApi ) {
+        super( data, restApi );
     }
 
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
-        Map<String, Object> data = MapUtil.map( "to", ( (RestNode) toNode ).getUri(),
-                "type", type.name() );
-
-        ClientResponse response = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
-        if ( restRequest.statusOtherThan( response, Status.CREATED ) ) {
-            throw new RuntimeException( "" + response.getStatus() );
-        }
-        return new RestRelationship( response.getLocation(), getGraphDatabase() );
+    	 return RestRelationship.create(this,(RestNode)toNode,type,null);
     }
 
     public Iterable<Relationship> getRelationships() {
@@ -43,12 +35,12 @@ public class RestNode extends RestEntity implements Node {
     }
 
     @SuppressWarnings("unchecked")
-    private Iterable<Relationship> wrapRelationships( ClientResponse response ) {
+    private Iterable<Relationship> wrapRelationships(  RequestResult requestResult ) {
         return new IterableWrapper<Relationship, Object>(
-                (Collection<Object>) restRequest.toEntity( response ) ) {
+                (Collection<Object>) restRequest.toEntity( requestResult ) ) {
             @Override
             protected Relationship underlyingObjectToObject( Object data ) {
-                return new RestRelationship( (Map<?, ?>) data, getGraphDatabase() );
+                return new RestRelationship( (Map<?, ?>) data, getRestApi() );
             }
         };
     }
@@ -66,36 +58,13 @@ public class RestNode extends RestEntity implements Node {
     }
 
 
-    enum RestDirection {
-        INCOMING( Direction.INCOMING, "incoming", "in" ),
-        OUTGOING( Direction.OUTGOING, "outgoing", "out" ),
-        BOTH( Direction.BOTH, "all", "all" );
-
-        public final Direction direction;
-        public final String dataName;
-        public final String pathName;
-
-        RestDirection( Direction direction, String dataName, String pathName ) {
-            this.direction = direction;
-            this.dataName = dataName;
-            this.pathName = pathName;
-        }
-
-        static RestDirection from( Direction direction ) {
-            for ( RestDirection restDirection : values() ) {
-                if ( restDirection.direction == direction ) return restDirection;
-            }
-            throw new RuntimeException( "No Rest-Direction for " + direction );
-        }
-    }
-
     public Iterable<Relationship> getRelationships( Direction direction ) {
-        return wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).pathName ) );
+        return wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).shortName ) );
     }
 
     public Iterable<Relationship> getRelationships( RelationshipType type,
                                                     Direction direction ) {
-        String relationshipsKey = RestDirection.from( direction ).dataName + "_relationships";
+        String relationshipsKey = RestDirection.from( direction ).longName + "_relationships";
         Object relationship = getStructuralData().get( relationshipsKey );
         return wrapRelationships( restRequest.get( relationship + "/" + type.name() ) );
     }
@@ -135,5 +104,23 @@ public class RestNode extends RestEntity implements Node {
                                ReturnableEvaluator returnableEvaluator, RelationshipType type, Direction direction,
                                RelationshipType secondType, Direction secondDirection ) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterable<Relationship> getRelationships(final Direction direction, RelationshipType... types) {
+        return new CombiningIterable<Relationship>(new IterableWrapper<Iterable<Relationship>, RelationshipType>(asList(types)) {
+            @Override
+            protected Iterable<Relationship> underlyingObjectToObject(RelationshipType relationshipType) {
+                return getRelationships(relationshipType,direction);
+            }
+        });
+    }
+
+    @Override
+    public boolean hasRelationship(Direction direction, RelationshipType... types) {
+        for (RelationshipType relationshipType : types) {
+            if (hasRelationship(relationshipType,direction)) return true;
+        }
+        return false;
     }
 }

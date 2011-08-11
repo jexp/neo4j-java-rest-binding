@@ -1,22 +1,25 @@
 package org.neo4j.rest.graphdb;
 
 import org.neo4j.graphdb.*;
+import org.neo4j.helpers.collection.MapUtil;
+
+
 
 import java.net.URI;
 import java.util.Map;
 
 public class RestRelationship extends RestEntity implements Relationship {
 
-    RestRelationship( URI uri, RestGraphDatabase graphDatabaseService ) {
-        super( uri, graphDatabaseService );
+    RestRelationship( URI uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    RestRelationship( String uri, RestGraphDatabase graphDatabase ) {
-        super( uri, graphDatabase );
+    RestRelationship( String uri, RestAPI restApi ) {
+        super( uri, restApi );
     }
 
-    public RestRelationship( Map<?, ?> data, RestGraphDatabase graphDatabase ) {
-        super( data, graphDatabase );
+    public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
+        super( data, restApi );
     }
 
     public Node getEndNode() {
@@ -44,7 +47,7 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
 
     private RestNode node( String uri ) {
-        return new RestNode( uri, getGraphDatabase() );
+        return new RestNode( uri, getRestApi() );
     }
 
     public Node getStartNode() {
@@ -58,4 +61,22 @@ public class RestRelationship extends RestEntity implements Relationship {
     public boolean isType( RelationshipType type ) {
         return type.name().equals( getStructuralData().get( "type" ) );
     }
+    
+    
+    public static RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
+        final RestRequest restRequest = startNode.getRestRequest();
+        Map<String, Object> data = MapUtil.map("to", endNode.getUri(), "type", type.name());
+        if (props!=null && props.size()>0) {
+            data.put("data",props);
+        }
+
+        RequestResult requestResult = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
+        if ( restRequest.statusOtherThan(requestResult, javax.ws.rs.core.Response.Status.CREATED ) ) {
+            final int status = requestResult.getStatus();
+            throw new RuntimeException( "" + status);
+        }
+        final URI location = requestResult.getLocation();
+        return new RestRelationship(location, startNode.getRestApi() );
+    }
+   
 }

@@ -1,34 +1,44 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.ClientResponse;
+
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.event.KernelEventHandler;
 import org.neo4j.graphdb.event.TransactionEventHandler;
-import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.kernel.AbstractGraphDatabase;
 import org.neo4j.kernel.Config;
 import org.neo4j.kernel.RestConfig;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
-
-import javax.ws.rs.core.Response.Status;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
-public class RestGraphDatabase extends AbstractGraphDatabase {
-    private RestRequest restRequest;
-    private long propertyRefetchTimeInMillis = 1000;
+public class RestGraphDatabase extends AbstractGraphDatabase {   
+    private RestAPI restAPI;
 
-
-    public RestGraphDatabase( URI uri ) {
-        restRequest = new RestRequest( uri );
+    
+    public RestGraphDatabase( RestAPI api){
+    	this.restAPI = api;    	
+    }
+    
+    public RestGraphDatabase( URI uri ) {     
+        this( new RestRequest( uri ));
     }
 
-    public RestGraphDatabase( URI uri, String user, String password ) {
-        restRequest = new RestRequest( uri, user, password );
+    public RestGraphDatabase( URI uri, String user, String password ) {        
+        this(new RestRequest( uri, user, password ));
     }
-
+    
+    public RestGraphDatabase( RestRequest restRequest){
+    	this(new RestAPI(restRequest)); 	
+    }
+    
+    
+    
+    
+    public RestAPI getRestAPI(){
+    	return this.restAPI;
+    }
+    
     public Transaction beginTx() {
         return new Transaction() {
             public void success() {
@@ -59,17 +69,14 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
         throw new UnsupportedOperationException();
     }
 
-    public IndexManager index() {
-        return new RestIndexManager( restRequest, this );
+    public RestIndexManager index() {
+       return this.restAPI.index();
     }
 
     public Node createNode() {
-        ClientResponse response = restRequest.post( "node", null );
-        if ( restRequest.statusOtherThan( response, Status.CREATED ) ) {
-            throw new RuntimeException( "" + response.getStatus() );
-        }
-        return new RestNode( response.getLocation(), this );
+    	return this.restAPI.createNode(null);
     }
+       
 
     public boolean enableRemoteShell() {
         throw new UnsupportedOperationException();
@@ -82,45 +89,36 @@ public class RestGraphDatabase extends AbstractGraphDatabase {
     public Iterable<Node> getAllNodes() {
         throw new UnsupportedOperationException();
     }
-
-    public Node getNodeById( long id ) {
-        ClientResponse response = restRequest.get( "node/" + id );
-        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
-            throw new NotFoundException( "" + id );
-        }
-        return new RestNode( restRequest.toMap( response ), this );
-    }
-
-    public Node getReferenceNode() {
-        Map<?, ?> map = restRequest.toMap( restRequest.get( "" ) );
-        return new RestNode( (String) map.get( "reference_node" ), this );
-    }
-
-    public Relationship getRelationshipById( long id ) {
-        ClientResponse response = restRequest.get( "relationship/" + id );
-        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
-            throw new NotFoundException( "" + id );
-        }
-        return new RestRelationship( restRequest.toMap( response ), this );
-    }
-
+  
     public Iterable<RelationshipType> getRelationshipTypes() {
         throw new UnsupportedOperationException();
     }
+
+    public Node getNodeById( long id ) {
+    	return this.restAPI.getNodeById(id);
+    }
+
+    public Node getReferenceNode() {
+        return this.restAPI.getReferenceNode();
+    }
+
+    public Relationship getRelationshipById( long id ) {
+    	return this.restAPI.getRelationshipById(id);
+    }    
 
     public void shutdown() {
     }
 
     public RestRequest getRestRequest() {
-        return restRequest;
+        return this.restAPI.getRestRequest();
     }
 
     public long getPropertyRefetchTimeInMillis() {
-        return propertyRefetchTimeInMillis;
+        return this.restAPI.getPropertyRefetchTimeInMillis();
 	}
     @Override
     public String getStoreDir() {
-        return restRequest.getUri().toString();
+        return this.restAPI.getStoreDir();
     }
 
     @Override

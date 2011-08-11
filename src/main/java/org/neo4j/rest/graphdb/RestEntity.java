@@ -1,10 +1,12 @@
 package org.neo4j.rest.graphdb;
 
-import com.sun.jersey.api.client.ClientResponse;
+
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.rest.graphdb.util.ArrayConverter;
+import org.neo4j.rest.graphdb.RequestResult;
 
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
@@ -16,26 +18,27 @@ public class RestEntity implements PropertyContainer {
     private Map<?, ?> structuralData;
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
-    private RestGraphDatabase graphDatabase;
-    protected RestRequest restRequest;
+    private RestAPI restApi;
+   
+	protected RestRequest restRequest;
     private final ArrayConverter arrayConverter=new ArrayConverter();
 
-    public RestEntity( URI uri, RestGraphDatabase graphDatabase ) {
-        this( uri.toString(), graphDatabase );
+    public RestEntity( URI uri, RestAPI restApi ) {
+        this( uri.toString(), restApi );
     }
 
-    public RestEntity( String uri, RestGraphDatabase graphDatabase ) {
-        this.restRequest = graphDatabase.getRestRequest().with( uri );
-        this.graphDatabase = graphDatabase;
+    public RestEntity( String uri, RestAPI restApi ) {
+        this.restRequest = restApi.getRestRequest().with( uri );
+        this.restApi = restApi;
     }
 
-    public RestEntity( Map<?, ?> data, RestGraphDatabase graphDatabase ) {
+    public RestEntity( Map<?, ?> data, RestAPI restApi ) {
         this.structuralData = data;
-        this.graphDatabase = graphDatabase;
+        this.restApi = restApi;
         this.propertyData = (Map<String, Object>) data.get( "data" );
         this.lastTimeFetchedPropertyData = System.currentTimeMillis();
         String uri = (String) data.get( "self" );
-        this.restRequest = graphDatabase.getRestRequest().with( uri );
+        this.restRequest = restApi.getRestRequest().with( uri );
     }
 
     public String getUri() {
@@ -50,8 +53,8 @@ public class RestEntity implements PropertyContainer {
     }
 
     Map<String, Object> getPropertyData() {
-        if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, graphDatabase.getPropertyRefetchTimeInMillis() ) ) {
-            ClientResponse response = restRequest.get( "properties" );
+        if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() ) ) {
+        	RequestResult response = restRequest.get( "properties" );
             boolean ok = restRequest.statusIs( response, Status.OK );
             if ( ok ) {
                 this.propertyData = (Map<String, Object>) restRequest.toMap( response );
@@ -154,8 +157,9 @@ public class RestEntity implements PropertyContainer {
         return getClass().equals( o.getClass() ) && getId() == ( (RestEntity) o ).getId();
     }
 
+       
     public RestGraphDatabase getGraphDatabase() {
-        return graphDatabase;
+    	 return new RestGraphDatabase(restApi);
     }
 
     public RestRequest getRestRequest() {
@@ -166,4 +170,9 @@ public class RestEntity implements PropertyContainer {
     public String toString() {
         return getUri();
     }
+    
+    public RestAPI getRestApi() {
+		return restApi;
+	}
+
 }
