@@ -20,14 +20,7 @@ class IsRelationshipToNodeMatcher extends TypeSafeMatcher<Iterable<Relationship>
 
     @Override
     public boolean matchesSafely( Iterable<Relationship> relationships ) {
-        return relationshipFromTo( relationships, startNode, endNode ) != null;
-    }
-
-    public static Relationship relationshipFromTo( Iterable<Relationship> relationships, final Node startNode, final Node endNode ) {
-        for ( Relationship relationship : relationships ) {
-            if ( relationship.getOtherNode( startNode ).equals( endNode ) ) return relationship;
-        }
-        return null;
+        return TestHelper.firstRelationshipBetween( relationships, startNode, endNode ) != null;
     }
 
     public void describeTo( Description description ) {

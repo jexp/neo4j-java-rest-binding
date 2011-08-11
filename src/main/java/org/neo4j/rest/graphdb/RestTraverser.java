@@ -17,15 +17,15 @@ import java.util.Map;
  */
 public class RestTraverser implements Traverser {
     private final Collection<Path> paths;
-    public RestTraverser(Collection col, RestGraphDatabase restGraphDatabase) {
-        this.paths = parseToPaths(col,restGraphDatabase);
+    public RestTraverser(Collection col, RestAPI restApi) {
+        this.paths = parseToPaths(col, restApi);
     }
 
-    private Collection<Path> parseToPaths(Collection col, RestGraphDatabase restGraphDatabase) {
+    private Collection<Path> parseToPaths(Collection col, RestAPI restApi) {
         Collection<Path> result=new ArrayList<Path>(col.size());
         for (Object path : col) {
             if (!(path instanceof Map)) throw new RuntimeException("Expected Map for Path representation but got: "+(path!=null ? path.getClass() : null));
-            result.add(RestPathParser.parse((Map) path, restGraphDatabase));
+            result.add(RestPathParser.parse((Map) path, restApi));
         }
         return result;
     }

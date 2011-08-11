@@ -1,6 +1,7 @@
 package org.neo4j.rest.graphdb.index;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestNode;
 import org.neo4j.rest.graphdb.RestRequest;
@@ -12,8 +13,8 @@ import java.util.Map;
  * @since 24.01.11
  */
 public class RestNodeIndex extends RestIndex<Node> {
-    public RestNodeIndex( RestRequest restRequest, String indexName, RestGraphDatabase restGraphDatabase ) {
-        super( restRequest, indexName, restGraphDatabase );
+    public RestNodeIndex( RestRequest restRequest, String indexName, RestAPI restApi ) {
+        super( restRequest, indexName, restApi );
     }
 
     public Class<Node> getEntityType() {
@@ -21,6 +22,6 @@ public class RestNodeIndex extends RestIndex<Node> {
     }
 
     protected Node createEntity(Map<?, ?> item) {
-        return new RestNode((Map<?, ?>) item, restGraphDatabase);
+        return new RestNode((Map<?, ?>) item, restApi);
     }
 }
