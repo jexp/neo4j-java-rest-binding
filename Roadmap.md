@@ -8,3 +8,8 @@
 - Implement a Rest URI Class (static description of the neo4j protocol)
 - Unique Nodes - get or create
 - Complete RestTraversalTests (empty tests at the moment)
+- support batch mode via batch-command
+- support gremlin, cypher plugins
+- support Traverser and Index-Paging
+- support arbitrary ServerPlugins and Unmanaged Extensions
+- support local caching
