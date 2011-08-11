@@ -1,5 +1,7 @@
 package org.neo4j.rest.graphdb;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -8,8 +10,12 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.index.lucene.QueryContext;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RestIndexTest extends RestTestBase {
 
@@ -122,6 +128,33 @@ public class RestIndexTest extends RestTestBase {
     }
 
     @Test
+    public void testQueryFulltextIndexWithLuceneQueryTerm() {
+        Map<String, String> config = new HashMap<String, String>();
+        config.put("provider", "lucene");
+        config.put("type", "fulltext");
+        final Index<Node> index = getRestGraphDb().index().forNodes("text-index", config);
+        index.add(node(), "text", "any text");
+        TermQuery luceneQuery = new TermQuery(new Term("text", "any t*"));
+        // TODO this works only because the toString implementation renders a complete query -> dangerous assumption
+        final IndexHits<Node> hits = index.query(luceneQuery);
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+    }
+
+    @Test
+    public void testQueryFulltextIndexWithQueryContext() {
+        Map<String, String> config = new HashMap<String, String>();
+        config.put("provider", "lucene");
+        config.put("type", "fulltext");
+        final Index<Node> index = getRestGraphDb().index().forNodes("text-index", config);
+        index.add(node(), "text", "any text");
+        QueryContext ctx = new QueryContext("text:any t*");
+        final IndexHits<Node> hits = index.query(ctx);
+        Assert.assertEquals("found in index results", true, hits.hasNext());
+        Assert.assertEquals("found in index results", node(), hits.next());
+    }
+
+    @Test
     public void testDeleteFromRelationshipIndex() {
         String value = String.valueOf(System.currentTimeMillis());
         relationshipIndex().add(relationship(), "time", value);
@@ -153,4 +186,5 @@ public class RestIndexTest extends RestTestBase {
         Assert.assertTrue("relationship index name listed", Arrays.asList(getRestGraphDb().index().relationshipIndexNames()).contains(REL_INDEX_NAME));
     }
 
+	
 }

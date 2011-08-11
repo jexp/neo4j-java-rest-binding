@@ -1,21 +1,14 @@
 package org.neo4j.rest.graphdb;
 
-import java.net.URI;
-import java.util.Map;
-
-import javax.ws.rs.core.Response.Status;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.PropertyContainer;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
-
-import com.sun.jersey.api.NotFoundException;
-
+import javax.ws.rs.core.Response.Status;
+import java.net.URI;
+import java.util.Map;
 
 public class RestAPI  {
 	

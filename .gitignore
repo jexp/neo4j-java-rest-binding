@@ -6,4 +6,4 @@
 target
 *.log
 tmp
-
+.idea

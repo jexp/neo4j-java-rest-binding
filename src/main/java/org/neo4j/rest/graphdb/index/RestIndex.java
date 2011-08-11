@@ -4,12 +4,8 @@ package org.neo4j.rest.graphdb.index;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
-import org.neo4j.rest.graphdb.JsonHelper;
-import org.neo4j.rest.graphdb.RequestResult;
-import org.neo4j.rest.graphdb.RestAPI;
-import org.neo4j.rest.graphdb.RestEntity;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
-import org.neo4j.rest.graphdb.RestRequest;
+import org.neo4j.index.lucene.QueryContext;
+import org.neo4j.rest.graphdb.*;
 
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -93,6 +89,9 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     protected abstract T createEntity( Map<?, ?> item );
 
     public org.neo4j.graphdb.index.IndexHits<T> query( Object value ) {
+        if (value instanceof QueryContext) {
+            value = ((QueryContext)value).getQueryOrQueryObject();
+        }
         return query("null",value);
     }
 
