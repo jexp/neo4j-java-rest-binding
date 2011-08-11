@@ -65,8 +65,8 @@ public class RestAPITest extends RestTestBase {
 	@Test
 	public void testGetIndexForNodes(){
 		RestIndexManager index = (RestIndexManager) getRestGraphDb().index();
-    	 Index<Node> testIndex = index.forNodes("indexName");
-    	 Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());    	
+    	Index<Node> testIndex = index.forNodes("indexName");
+    	Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());    	
 	}
 	
 	@Test
@@ -92,7 +92,7 @@ public class RestAPITest extends RestTestBase {
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void testForDoubleCreatedIndexForNodesWithEmptyParams() {
-		 this.restAPI.createIndex(Node.class, "indexName", true);
+		this.restAPI.createIndex(Node.class, "indexName", true);
 		RestIndexManager index = (RestIndexManager) getRestGraphDb().index();
    	    Index<Node> testIndex = index.forNodes("indexName", new HashMap<String, String>());   		
 	}
@@ -130,9 +130,9 @@ public class RestAPITest extends RestTestBase {
 	
 	@Test
 	public void testGetIndexByIndexForNodesCreationViaRestAPI(){
-		 IndexManager index = getRestGraphDb().index();
-    	 Index<Node> testIndex = index.forNodes("indexName");
-    	 Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());
+		IndexManager index = getRestGraphDb().index();
+    	Index<Node> testIndex = index.forNodes("indexName");
+    	Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());
 	}
 	
 	@Test
@@ -157,8 +157,8 @@ public class RestAPITest extends RestTestBase {
 	@Test
 	public void testGetIndexForRelationships(){
 		RestIndexManager index = (RestIndexManager) getRestGraphDb().index();
-    	 Index<Relationship> testIndex = index.forRelationships("indexName");
-    	 Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());    	
+    	Index<Relationship> testIndex = index.forRelationships("indexName");
+    	Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());    	
 	}
 	
 	@Test
@@ -222,9 +222,9 @@ public class RestAPITest extends RestTestBase {
 	
 	@Test
 	public void testGetIndexByIndexForRelationshipsCreationViaRestAPI(){
-		 IndexManager index = getRestGraphDb().index();
-    	 Index<Relationship> testIndex = index.forRelationships("indexName");
-    	 Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());
+		IndexManager index = getRestGraphDb().index();
+    	Index<Relationship> testIndex = index.forRelationships("indexName");
+    	Assert.assertEquals(testIndex.getName(), this.restAPI.getIndex("indexName").getName());
 	}
 	
 	@Test
