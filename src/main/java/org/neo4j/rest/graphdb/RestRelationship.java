@@ -17,6 +17,10 @@ public class RestRelationship extends RestEntity implements Relationship {
     RestRelationship( String uri, RestAPI restApi ) {
         super( uri, restApi );
     }
+    
+    public RestRelationship( long batchId, String uri, RestAPI restApi ) {
+        super( batchId, uri, restApi );
+    }
 
     public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
@@ -70,8 +74,8 @@ public class RestRelationship extends RestEntity implements Relationship {
             data.put("data",props);
         }
 
-        RequestResult requestResult = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
-        if ( restRequest.statusOtherThan(requestResult, javax.ws.rs.core.Response.Status.CREATED ) ) {
+        RequestResult requestResult = restRequest.post( "relationships", data);
+        if ( requestResult.statusOtherThan(javax.ws.rs.core.Response.Status.CREATED ) ) {
             final int status = requestResult.getStatus();
             throw new RuntimeException( "" + status);
         }

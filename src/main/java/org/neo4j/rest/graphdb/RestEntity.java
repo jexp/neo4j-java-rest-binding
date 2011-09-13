@@ -1,7 +1,6 @@
 package org.neo4j.rest.graphdb;
 
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
@@ -18,18 +17,26 @@ public class RestEntity implements PropertyContainer {
     private Map<?, ?> structuralData;
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
-    private RestAPI restApi;
+    private RestAPI restApi;    
+    private long batchId;
+    private boolean isBatch = false;
    
 	protected RestRequest restRequest;
     private final ArrayConverter arrayConverter=new ArrayConverter();
 
     public RestEntity( URI uri, RestAPI restApi ) {
         this( uri.toString(), restApi );
-    }
+    }    
 
     public RestEntity( String uri, RestAPI restApi ) {
         this.restRequest = restApi.getRestRequest().with( uri );
         this.restApi = restApi;
+    }
+    
+    public RestEntity(long batchId ,  String uri, RestAPI restApi){
+        this(uri, restApi );
+        this.batchId = batchId;
+        this.isBatch = true;
     }
 
     public RestEntity( Map<?, ?> data, RestAPI restApi ) {
@@ -42,12 +49,15 @@ public class RestEntity implements PropertyContainer {
     }
 
     public String getUri() {
+        if (this.isBatch()){
+            return  "{" + this.batchId +"}";
+        }
         return this.restRequest.getUri().toString();
     }
 
     Map<?, ?> getStructuralData() {
         if ( this.structuralData == null ) {
-            this.structuralData = restRequest.toMap( restRequest.get( "" ) );
+            this.structuralData = restRequest.get( "" ) .toMap( );
         }
         return this.structuralData;
     }
@@ -55,9 +65,9 @@ public class RestEntity implements PropertyContainer {
     Map<String, Object> getPropertyData() {
         if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() ) ) {
         	RequestResult response = restRequest.get( "properties" );
-            boolean ok = restRequest.statusIs( response, Status.OK );
+            boolean ok = response.statusIs( Status.OK );
             if ( ok ) {
-                this.propertyData = (Map<String, Object>) restRequest.toMap( response );
+                this.propertyData = (Map<String, Object>) response.toMap(  );
             } else {
                 this.propertyData = Collections.emptyMap();
             }
@@ -126,7 +136,7 @@ public class RestEntity implements PropertyContainer {
     }
 
     public void setProperty( String key, Object value ) {
-        restRequest.put( "properties/" + key, JsonHelper.createJsonFrom( value ) );
+        restRequest.put( "properties/" + key, value);
         invalidatePropertyData();
     }
 
@@ -174,5 +184,9 @@ public class RestEntity implements PropertyContainer {
     public RestAPI getRestApi() {
 		return restApi;
 	}
+    
+    public boolean isBatch(){
+        return this.isBatch;
+    }
 
 }

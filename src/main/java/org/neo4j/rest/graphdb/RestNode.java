@@ -25,6 +25,10 @@ public class RestNode extends RestEntity implements Node {
     public RestNode( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
     }
+    
+    public RestNode(long batchId ,  String uri, RestAPI restApi){
+        super(batchId, uri, restApi);
+    }
 
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
     	 return RestRelationship.create(this,(RestNode)toNode,type,null);
@@ -37,7 +41,7 @@ public class RestNode extends RestEntity implements Node {
     @SuppressWarnings("unchecked")
     private Iterable<Relationship> wrapRelationships(  RequestResult requestResult ) {
         return new IterableWrapper<Relationship, Object>(
-                (Collection<Object>) restRequest.toEntity( requestResult ) ) {
+                (Collection<Object>) requestResult.toEntity() ) {
             @Override
             protected Relationship underlyingObjectToObject( Object data ) {
                 return new RestRelationship( (Map<?, ?>) data, getRestApi() );

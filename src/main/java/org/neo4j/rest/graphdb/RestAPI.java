@@ -1,6 +1,9 @@
 package org.neo4j.rest.graphdb;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.Response.Status;
@@ -11,6 +14,8 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
+import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation;
+import org.neo4j.rest.graphdb.BatchRestAPI;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
 
@@ -19,24 +24,25 @@ import com.sun.jersey.api.NotFoundException;
 
 public class RestAPI  {
 	
-	  private final RestRequest restRequest;  
+	  protected final RestRequest restRequest;  
 	  private long propertyRefetchTimeInMillis = 1000;
-
-	  
 	 
-	public RestAPI(RestRequest restRequest){
+	 
+	  public RestAPI(RestRequest restRequest){
 		  this.restRequest = restRequest;		
 	  }
 	  
 	  public RestAPI( URI uri ) {
-	      this(new RestRequest( uri ));	       
+	      this.restRequest = createRestRequest(uri, null, null);
 	  }
 
-	  public RestAPI( URI uri, String user, String password ) {
-	      this(new RestRequest( uri, user, password ));	      
+	  public RestAPI( URI uri, String user, String password ) {	      
+	      this.restRequest = createRestRequest(uri, user, password); 
 	  }	  
 	 
-
+	  protected RestRequest createRestRequest( URI uri, String user, String password){
+	      return new ExecutingRestRequest(uri,  user,  password);
+	  }
 	 
 	  public RestIndexManager index() {
 	        return new RestIndexManager( restRequest, this);
@@ -44,24 +50,24 @@ public class RestAPI  {
 	  
 	  public Node getNodeById( long id ) {
 	    	RequestResult response = restRequest.get( "node/" + id );
-	        if ( restRequest.statusIs( response, Status.NOT_FOUND ) ) {
+	        if ( response.statusIs(Status.NOT_FOUND ) ) {
 	            throw new NotFoundException( "" + id );
 	        }
-	        return new RestNode( restRequest.toMap( response ), this );
+	        return new RestNode( response.toMap(), this );
 	  }
 	  
 	  public Relationship getRelationshipById(long id) {
 	        RequestResult requestResult = restRequest.get("relationship/" + id);
-	        if ( restRequest.statusIs(requestResult, Status.NOT_FOUND ) ) {
+	        if ( requestResult.statusIs(Status.NOT_FOUND ) ) {
 	            throw new NotFoundException( "" + id );
 	        }
-	        return new RestRelationship( restRequest.toMap(requestResult), this );
+	        return new RestRelationship( requestResult.toMap(), this );
 	  }
 	  	  
 	  
 	  public Node createNode(Map<String, Object> props) {
-	        RequestResult requestResult = restRequest.post("node", JsonHelper.createJsonFrom( props ));
-	        if ( restRequest.statusOtherThan(requestResult, Status.CREATED) ) {
+	        RequestResult requestResult = restRequest.post("node", props);  
+	        if ( requestResult.statusOtherThan(Status.CREATED) ) {
 	            final int status = requestResult.getStatus();
 	            throw new RuntimeException( "" + status);
 	        }
@@ -102,7 +108,7 @@ public class RestAPI  {
 	  }
 	  
 	  public Node getReferenceNode() {
-	        Map<?, ?> map = restRequest.toMap( restRequest.get( "" ) );
+	        Map<?, ?> map = restRequest.get( "" ).toMap();
 	        return new RestNode( (String) map.get( "reference_node" ), this);
 	  }
 	  
@@ -117,7 +123,30 @@ public class RestAPI  {
 	 
 	  public void setPropertyRefetchTimeInMillis(long propertyRefetchTimeInMillis) {
 			this.propertyRefetchTimeInMillis = propertyRefetchTimeInMillis;
-	 }
+	  }
+	  
+	  
+	  public void executeBatch( BatchCallback batchCallback){
+	      BatchRestAPI batchRestApi = new BatchRestAPI(uri);
+	      batchCallback.recordBatch(batchRestApi);
+	      Collection<RestOperation> operations = batchRestApi.getRecordedOperations();
+	      RequestResult response = this.restRequest.post(path, createBatchRequestData(operations));
+	  }
+	  
+	  private Collection<Map<String,Object>> createBatchRequestData(Collection<RestOperation> operations){
+	        Collection<Map<String,Object>> batch = new ArrayList<Map<String,Object>>();
+	        for (RestOperation operation : operations){
+	            Map<String,Object> params = new HashMap<String, Object>();
+	            params.put("method", operation.getMethod());
+	            params.put("to", operation.getUri());
+	            if (operation.getData() != null){
+	                params.put("body", operation.getData());
+	            }
+	            params.put("id", operation.getBatchId());
+	            batch.add(params);
+	        }  
+	        return batch;
+	  }
 
 
 }
