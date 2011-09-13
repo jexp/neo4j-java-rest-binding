@@ -4,6 +4,7 @@ package org.neo4j.rest.graphdb.index;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.rest.graphdb.ExecutingRestRequest;
 import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestAPI;
@@ -43,15 +44,15 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     public void add( T entity, String key, Object value ) {
         final RestEntity restEntity = (RestEntity) entity;
         String uri = restEntity.getUri();
-        final RequestResult response = restRequest.post(indexPath(key, value), JsonHelper.createJsonFrom(uri));
+        final RequestResult response = restRequest.post(indexPath(key, value), uri);
         if (response.getStatus() != 201) throw new RuntimeException(String.format("Error adding element %d %s %s to index %s", restEntity.getId(), key, value, indexName));
     }
 
     private String indexPath( String key, Object value ) {
-        return "index/" + getTypeName() + "/" + indexName + (key!=null? "/" + RestRequest.encode( key ) :"") + (value!=null ? "/" + RestRequest.encode( value ):"");
+        return "index/" + getTypeName() + "/" + indexName + (key!=null? "/" + ExecutingRestRequest.encode( key ) :"") + (value!=null ? "/" + ExecutingRestRequest.encode( value ):"");
     }
     private String queryPath( String key, Object value ) {
-        return indexPath(key,null) + "?query="+RestRequest.encode( value );
+        return indexPath(key,null) + "?query="+ExecutingRestRequest.encode( value );
     }
 
     public void remove( T entity, String key, Object value ) {
@@ -82,8 +83,8 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     }
 
     private IndexHits<T> handleQueryResults(RequestResult response) {
-        if ( restRequest.statusIs( response, Response.Status.OK ) ) {
-            Collection hits = (Collection) restRequest.toEntity( response );
+        if ( response.statusIs( Response.Status.OK ) ) {
+            Collection hits = (Collection) response.toEntity();
             return new SimpleIndexHits<T>( hits, hits.size() );
         } else {
             return new SimpleIndexHits<T>( Collections.emptyList(), 0 );

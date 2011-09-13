@@ -136,11 +136,10 @@ public class RestTraversal implements RestTraversalDescription {
 
     public Traverser traverse(Node node) {
         final RestNode restNode = (RestNode) node;
-        final RestRequest request = restNode.getRestRequest();
-        final String traversalJson = JsonHelper.createJsonFrom(description);
-        final RequestResult result = request.post("traverse/" + FULLPATH, traversalJson);
-        if (request.statusOtherThan(result, Response.Status.OK)) throw new RuntimeException(String.format("Error executing traversal: %d %s",result.getStatus(), traversalJson));
-        final Object col = request.toEntity(result);
+        final RestRequest request = restNode.getRestRequest();       
+        final RequestResult result = request.post("traverse/" + FULLPATH, description);
+        if (result.statusOtherThan(Response.Status.OK)) throw new RuntimeException(String.format("Error executing traversal: %d %s",result.getStatus(), description));
+        final Object col = result.toEntity();
         if (!(col instanceof Collection)) throw new RuntimeException(String.format("Unexpected traversal result, %s instead of collection", col!=null ? col.getClass() : null));
         return new RestTraverser((Collection) col,restNode.getRestApi());
     }

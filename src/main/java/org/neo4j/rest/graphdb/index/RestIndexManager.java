@@ -39,8 +39,8 @@ public class RestIndexManager implements IndexManager {
     @SuppressWarnings({"unchecked"})
     private Map<String, ?> indexInfo( final String indexType ) {
     	RequestResult response = restRequest.get( "index/" + indexType );
-        if ( restRequest.statusIs( response, ClientResponse.Status.NO_CONTENT ) ) return Collections.emptyMap();
-        return (Map<String, ?>) restRequest.toMap( response );
+        if ( response.statusIs(ClientResponse.Status.NO_CONTENT ) ) return Collections.emptyMap();
+        return (Map<String, ?>) response.toMap();
     }
     
     @SuppressWarnings("unchecked")
@@ -112,7 +112,7 @@ public class RestIndexManager implements IndexManager {
         Map<String,Object> data=new HashMap<String, Object>();
         data.put("name",indexName);
         data.put("config",config);
-        restRequest.post("index/" + type, JsonHelper.createJsonFrom(data));
+        restRequest.post("index/" + type, data);
     }
 
     public String[] relationshipIndexNames() {
