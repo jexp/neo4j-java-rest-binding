@@ -26,12 +26,12 @@ public class RestNode extends RestEntity implements Node {
         super( data, restApi );
     }
     
-    public RestNode(long batchId ,  String uri, RestAPI restApi){
-        super(batchId, uri, restApi);
+    public RestNode(long batchId){
+        super(batchId);
     }
 
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
-    	 return RestRelationship.create(this,(RestNode)toNode,type,null);
+    	 return this.restApi.createRelationship(this,(RestNode)toNode,type,null);
     }
 
     public Iterable<Relationship> getRelationships() {

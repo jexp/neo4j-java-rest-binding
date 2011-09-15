@@ -17,7 +17,7 @@ public class RestEntity implements PropertyContainer {
     private Map<?, ?> structuralData;
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
-    private RestAPI restApi;    
+    protected RestAPI restApi;    
     private long batchId;
     private boolean isBatch = false;
    
@@ -33,8 +33,7 @@ public class RestEntity implements PropertyContainer {
         this.restApi = restApi;
     }
     
-    public RestEntity(long batchId ,  String uri, RestAPI restApi){
-        this(uri, restApi );
+    public RestEntity(long batchId){       
         this.batchId = batchId;
         this.isBatch = true;
     }
@@ -149,6 +148,9 @@ public class RestEntity implements PropertyContainer {
     }
 
     public long getId() {
+        if (isBatch){
+            return this.batchId;
+        }
         return getEntityId( getUri() );
     }
 

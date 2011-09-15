@@ -18,8 +18,8 @@ public class RestRelationship extends RestEntity implements Relationship {
         super( uri, restApi );
     }
     
-    public RestRelationship( long batchId, String uri, RestAPI restApi ) {
-        super( batchId, uri, restApi );
+    public RestRelationship( long batchId) {
+        super( batchId);
     }
 
     public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
@@ -67,20 +67,8 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
     
     
-    public static RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
-        final RestRequest restRequest = startNode.getRestRequest();
-        Map<String, Object> data = MapUtil.map("to", endNode.getUri(), "type", type.name());
-        if (props!=null && props.size()>0) {
-            data.put("data",props);
-        }
-
-        RequestResult requestResult = restRequest.post( "relationships", data);
-        if ( requestResult.statusOtherThan(javax.ws.rs.core.Response.Status.CREATED ) ) {
-            final int status = requestResult.getStatus();
-            throw new RuntimeException( "" + status);
-        }
-        final URI location = requestResult.getLocation();
-        return new RestRelationship(location, startNode.getRestApi() );
+    public RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
+       return this.restApi.createRelationship(startNode, endNode, type, props);
     }
    
 }
