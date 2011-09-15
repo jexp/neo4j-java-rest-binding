@@ -13,6 +13,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation;
 import org.neo4j.rest.graphdb.BatchRestAPI;
@@ -24,7 +25,7 @@ import com.sun.jersey.api.NotFoundException;
 
 public class RestAPI  {
 	
-	  protected final RestRequest restRequest;  
+	  protected RestRequest restRequest;  
 	  private long propertyRefetchTimeInMillis = 1000;
 	 
 	 
@@ -67,18 +68,37 @@ public class RestAPI  {
 	  
 	  public Node createNode(Map<String, Object> props) {
 	        RequestResult requestResult = restRequest.post("node", props);  
-	        if ( requestResult.statusOtherThan(Status.CREATED) ) {
-	            final int status = requestResult.getStatus();
-	            throw new RuntimeException( "" + status);
-	        }
-	        final URI location = requestResult.getLocation();
-	        return new RestNode(location, this );
+	        return createRestNode(requestResult);
 	  }
 	  
-	  public RestRelationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {
-	        return RestRelationship.create((RestNode)startNode,(RestNode)endNode,type,props);
+	  public Node createRestNode(RequestResult requestResult){
+	      if ( requestResult.statusOtherThan(Status.CREATED) ) {
+              final int status = requestResult.getStatus();
+              throw new RuntimeException( "" + status);
+          }
+          final URI location = requestResult.getLocation();
+          return new RestNode(location, this );
 	  }
 	  
+	  public RestRelationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {	      
+	      final RestRequest restRequest = ((RestNode)startNode).getRestRequest();
+	      Map<String, Object> data = MapUtil.map("to", ((RestNode)endNode).getUri(), "type", type.name());
+          if (props!=null && props.size()>0) {
+              data.put("data",props);
+          }         
+          RequestResult requestResult = restRequest.post( "relationships", data); 
+          return createRestRelationship(requestResult, startNode);
+	  }
+	  
+	  public RestRelationship createRestRelationship(RequestResult requestResult,Node startNode){
+	     
+          if ( requestResult.statusOtherThan(javax.ws.rs.core.Response.Status.CREATED ) ) {
+              final int status = requestResult.getStatus();
+              throw new RuntimeException( "" + status);
+          }
+          final URI location = requestResult.getLocation();
+          return new RestRelationship(location, ((RestNode)startNode).getRestApi() );
+	  }
 	  
 	  public <T extends PropertyContainer> Index<T> getIndex(String indexName) {
 	        final RestIndexManager index = this.index();
@@ -126,11 +146,12 @@ public class RestAPI  {
 	  }
 	  
 	  
-	  public void executeBatch( BatchCallback batchCallback){
-	      BatchRestAPI batchRestApi = new BatchRestAPI(uri);
+	  public RequestResult executeBatch( BatchCallback batchCallback){
+	      BatchRestAPI batchRestApi = new BatchRestAPI(this.restRequest.getUri(), (ExecutingRestRequest)this.restRequest);
 	      batchCallback.recordBatch(batchRestApi);
 	      Collection<RestOperation> operations = batchRestApi.getRecordedOperations();
-	      RequestResult response = this.restRequest.post(path, createBatchRequestData(operations));
+	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));
+	      return response;
 	  }
 	  
 	  private Collection<Map<String,Object>> createBatchRequestData(Collection<RestOperation> operations){
@@ -140,11 +161,11 @@ public class RestAPI  {
 	            params.put("method", operation.getMethod());
 	            params.put("to", operation.getUri());
 	            if (operation.getData() != null){
-	                params.put("body", operation.getData());
+	                params.put("body", operation.getData());	                
 	            }
 	            params.put("id", operation.getBatchId());
-	            batch.add(params);
-	        }  
+	            batch.add(params);	          
+	        }  	      
 	        return batch;
 	  }
 
