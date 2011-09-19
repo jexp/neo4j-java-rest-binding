@@ -1,12 +1,9 @@
 package org.neo4j.rest.graphdb;
 
 import org.neo4j.graphdb.*;
-import org.neo4j.helpers.collection.MapUtil;
-
-
-
 import java.net.URI;
 import java.util.Map;
+
 
 public class RestRelationship extends RestEntity implements Relationship {
 
@@ -16,12 +13,8 @@ public class RestRelationship extends RestEntity implements Relationship {
 
     RestRelationship( String uri, RestAPI restApi ) {
         super( uri, restApi );
-    }
-    
-    public RestRelationship( long batchId) {
-        super( batchId);
-    }
-
+    }    
+  
     public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
     }

@@ -18,8 +18,7 @@ public class RestEntity implements PropertyContainer {
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
     protected RestAPI restApi;    
-    private long batchId;
-    private boolean isBatch = false;
+   
    
 	protected RestRequest restRequest;
     private final ArrayConverter arrayConverter=new ArrayConverter();
@@ -30,13 +29,8 @@ public class RestEntity implements PropertyContainer {
 
     public RestEntity( String uri, RestAPI restApi ) {
         this.restRequest = restApi.getRestRequest().with( uri );
-        this.restApi = restApi;
-    }
-    
-    public RestEntity(long batchId){       
-        this.batchId = batchId;
-        this.isBatch = true;
-    }
+        this.restApi = restApi;       
+    }      
 
     public RestEntity( Map<?, ?> data, RestAPI restApi ) {
         this.structuralData = data;
@@ -47,10 +41,7 @@ public class RestEntity implements PropertyContainer {
         this.restRequest = restApi.getRestRequest().with( uri );
     }
 
-    public String getUri() {
-        if (this.isBatch()){
-            return  "{" + this.batchId +"}";
-        }
+    public String getUri() {       
         return this.restRequest.getUri().toString();
     }
 
@@ -147,10 +138,7 @@ public class RestEntity implements PropertyContainer {
         return Long.parseLong( uri.substring( uri.lastIndexOf( '/' ) + 1 ) );
     }
 
-    public long getId() {
-        if (isBatch){
-            return this.batchId;
-        }
+    public long getId() {        
         return getEntityId( getUri() );
     }
 
@@ -185,10 +173,7 @@ public class RestEntity implements PropertyContainer {
     
     public RestAPI getRestApi() {
 		return restApi;
-	}
+	}    
     
-    public boolean isBatch(){
-        return this.isBatch;
-    }
 
 }

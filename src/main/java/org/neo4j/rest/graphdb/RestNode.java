@@ -24,12 +24,8 @@ public class RestNode extends RestEntity implements Node {
 
     public RestNode( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
-    }
-    
-    public RestNode(long batchId){
-        super(batchId);
-    }
-
+    }    
+  
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
     	 return this.restApi.createRelationship(this,(RestNode)toNode,type,null);
     }

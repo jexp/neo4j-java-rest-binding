@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import javax.ws.rs.core.MediaType;
 import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation.Methods;
 
@@ -20,7 +22,7 @@ public class RecordingRestRequest implements RestRequest {
     protected final URI baseUri;   
     private MediaType contentType;
     private MediaType acceptHeader;
-    private long currentBatchId = 0;
+    private AtomicLong currentBatchId = new AtomicLong(0);
     private ExecutingRestRequest executingRestRequest;
    
     
@@ -28,6 +30,11 @@ public class RecordingRestRequest implements RestRequest {
     public RecordingRestRequest( ExecutingRestRequest restRequest ) {
         this( restRequest.getUri(), MediaType.APPLICATION_JSON_TYPE,  MediaType.APPLICATION_JSON_TYPE );
         this.executingRestRequest = restRequest;
+    }   
+    
+    public RecordingRestRequest( ExecutingRestRequest restRequest, AtomicLong currentBatchid ) {
+       this(restRequest);
+       this.currentBatchId = currentBatchid;
     }   
     
     
@@ -115,8 +122,8 @@ public class RecordingRestRequest implements RestRequest {
     }
 
     @Override
-    public RestRequest with(String uri) {
-        return new RecordingRestRequest((ExecutingRestRequest)this.executingRestRequest.with(uri));
+    public RestRequest with(String uri) {        
+        return new RecordingRestRequest((ExecutingRestRequest)this.executingRestRequest.with(this.baseUri.toString()), this.currentBatchId);
     }
 
     @Override
@@ -129,8 +136,8 @@ public class RecordingRestRequest implements RestRequest {
         return this.record(Methods.GET, path, null);
     }    
     
-    public RequestResult record(Methods method, String path, Object data){
-        RestOperation r = new RestOperation(this.currentBatchId++,method,path,this.contentType,this.acceptHeader,data);
+    public RequestResult record(Methods method, String path, Object data){        
+        RestOperation r = new RestOperation(this.currentBatchId.incrementAndGet(),method,path,this.contentType,this.acceptHeader,data);
         operations.add(r);
         return RequestResult.batchResult(r);
     }
@@ -156,7 +163,6 @@ public class RecordingRestRequest implements RestRequest {
         } catch ( UnsupportedEncodingException e ) {
             throw new RuntimeException( e );
         }
-    }    
-      
+    }       
 }
 

@@ -40,24 +40,24 @@ public class BatchRestAPI extends RestAPI {
     @Override
     public Node createRestNode(RequestResult requestResult) {        
         final long batchId = requestResult.getBatchId();       
-        return new RestNode(batchId);
+        return new RestNode("{"+batchId+"}", this);
     }
-    
-    @Override
-    public RestRelationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {        
        
+    @Override
+    public RestRelationship createRelationship(Node startNode, Node endNode, RelationshipType type, Map<String, Object> props) {          
+        final RestRequest restRequest = ((RestNode)startNode).getRestRequest();
         Map<String, Object> data = MapUtil.map("to", ((RestNode)endNode).getUri(), "type", type.name());
         if (props!=null && props.size()>0) {
             data.put("data",props);
         }         
-        RequestResult requestResult = this.restRequest.post(  ((RestNode)startNode).getUri()+"/relationships", data);        
+        RequestResult requestResult = restRequest.post( "relationships", data); 
         return createRestRelationship(requestResult, startNode);
     }
     
     @Override
     public RestRelationship createRestRelationship(RequestResult requestResult, Node startNode) {          
         final long batchId = requestResult.getBatchId();      
-        return new RestRelationship(batchId);    
+        return new RestRelationship("{"+batchId+"}", this);
     }
     
     public Collection<RestOperation> getRecordedOperations(){

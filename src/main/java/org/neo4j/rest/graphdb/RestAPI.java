@@ -150,7 +150,7 @@ public class RestAPI  {
 	      BatchRestAPI batchRestApi = new BatchRestAPI(this.restRequest.getUri(), (ExecutingRestRequest)this.restRequest);
 	      batchCallback.recordBatch(batchRestApi);
 	      Collection<RestOperation> operations = batchRestApi.getRecordedOperations();
-	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));
+	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	     
 	      return response;
 	  }
 	  
