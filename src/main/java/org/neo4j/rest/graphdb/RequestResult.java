@@ -20,7 +20,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
-import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation;
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
 
 import java.net.URI;
 import java.util.Map;

@@ -15,7 +15,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
-import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation;
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
 import org.neo4j.rest.graphdb.BatchRestAPI;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
 
@@ -149,14 +149,14 @@ public class RestAPI  {
 	  public <T> T executeBatch( BatchCallback<T> batchCallback){
 	      BatchRestAPI batchRestApi = new BatchRestAPI(this.restRequest.getUri(), (ExecutingRestRequest)this.restRequest);
 	      T batchResult = batchCallback.recordBatch(batchRestApi);
-	      Collection<RestOperation> operations = batchRestApi.getRecordedOperations();
+	      Map<Long, RestOperation> operations = batchRestApi.getRecordedOperations();
 	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	    
 	      return batchResult;
 	  }
 	  
-	  private Collection<Map<String,Object>> createBatchRequestData(Collection<RestOperation> operations){
+	  private Collection<Map<String,Object>> createBatchRequestData(Map<Long, RestOperation> operations){
 	        Collection<Map<String,Object>> batch = new ArrayList<Map<String,Object>>();
-	        for (RestOperation operation : operations){
+	        for (RestOperation operation : operations.values()){
 	            Map<String,Object> params = new HashMap<String, Object>();
 	            params.put("method", operation.getMethod());
 	            params.put("to", operation.getUri());
@@ -165,7 +165,8 @@ public class RestAPI  {
 	            }
 	            params.put("id", operation.getBatchId());
 	            batch.add(params);	          
-	        }  	      
+	        } 
+	        System.out.println(batch.toString());
 	        return batch;
 	  }
 

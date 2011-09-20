@@ -2,39 +2,38 @@ package org.neo4j.rest.graphdb;
 
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.ws.rs.core.MediaType;
-import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation.Methods;
+
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
+import org.neo4j.rest.graphdb.RestOperations.RestOperation.Methods;
 
 
 
-public class RecordingRestRequest implements RestRequest {
-    
-    private Collection<RestOperation> operations = new ArrayList<RecordingRestRequest.RestOperation>();
+public class RecordingRestRequest implements RestRequest {    
+  
     protected final String baseUri;   
     private MediaType contentType;
-    private MediaType acceptHeader;
-    private AtomicLong currentBatchId = new AtomicLong(0);
+    private MediaType acceptHeader;   
     private RestRequest restRequest;
+    private RestOperations operations;
    
     
     
-    public RecordingRestRequest( RestRequest restRequest ) {       
+    public RestOperations getOperations() {
+        return operations;
+    }
+
+    public RecordingRestRequest( RestRequest restRequest) {       
         this( restRequest.getUri(), MediaType.APPLICATION_JSON_TYPE,  MediaType.APPLICATION_JSON_TYPE );
         this.restRequest = restRequest;       
     }   
     
-    public RecordingRestRequest( RestRequest restRequest, AtomicLong currentBatchid ) {
+    public RecordingRestRequest( RestRequest restRequest, RestOperations operations  ) {
        this(restRequest);
-       this.currentBatchId = currentBatchid;
+       this.operations = operations;
     }   
     
     
@@ -46,59 +45,7 @@ public class RecordingRestRequest implements RestRequest {
     }   
        
 
-    public static class RestOperation { 
-        public enum Methods{
-            POST,
-            PUT,
-            GET,
-            DELETE
-        }
-        
-        private Methods method;
-        private Object data;
-        private long batchId;
-        private String uri;
-        private MediaType contentType;
-        private MediaType acceptHeader;
-        
-        public RestOperation(long batchId, Methods method, String uri, MediaType contentType, MediaType acceptHeader, Object data){
-            this.batchId = batchId;
-            this.method = method;
-            this.uri = uri;
-            this.contentType = contentType;
-            this.acceptHeader = acceptHeader;
-            this.data = data;
-        }
-        
-        public Methods getMethod() {
-            return method;
-        }
-
-        public Object getData() {
-            return data;
-        }
-
-        public long getBatchId() {
-            return batchId;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        public MediaType getContentType() {
-            return contentType;
-        }
-
-        public MediaType getAcceptHeader() {
-            return acceptHeader;
-        }
-          
-    }
-    
-    public Collection<RestOperation> getRecordedRequests(){
-        return this.operations;
-    }
+  
 
     @Override
     public RequestResult get(String path, Object data) {
@@ -123,7 +70,7 @@ public class RecordingRestRequest implements RestRequest {
 
     @Override
     public RestRequest with(String uri) {        
-        return new RecordingRestRequest(this.restRequest.with(uri), this.currentBatchId);
+        return new RecordingRestRequest(this.restRequest.with(uri), this.operations);
     }
 
     @Override
@@ -136,20 +83,12 @@ public class RecordingRestRequest implements RestRequest {
         return this.record(Methods.GET, path, null);
     }    
     
-    public RequestResult record(Methods method, String path, Object data){        
-        RestOperation r = new RestOperation(this.currentBatchId.incrementAndGet(),method,path,this.contentType,this.acceptHeader,data);
-        operations.add(r);
-        return RequestResult.batchResult(r);
+    public RequestResult record(Methods method, String path, Object data){       
+        return this.operations.record(method, path, data);
     }
-      
     
-    private URI uri( String uri ) {
-        try {
-            return new URI( uri );
-        } catch ( URISyntaxException e ) {
-            throw new RuntimeException( e );
-        }
-    }   
+   
+        
 
     private String uriWithoutSlash( String uri ) {
         String uriString = uri;
@@ -163,6 +102,10 @@ public class RecordingRestRequest implements RestRequest {
         } catch ( UnsupportedEncodingException e ) {
             throw new RuntimeException( e );
         }
-    }       
+    }    
+    
+    public Map<Long,RestOperation> getRecordedRequests(){
+        return this.operations.getRecordedRequests();
+    }
 }
 

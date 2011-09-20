@@ -1,7 +1,6 @@
 package org.neo4j.rest.graphdb;
 
-import java.net.URI;
-import java.util.Collection;
+
 import java.util.Map;
 
 import org.neo4j.graphdb.Node;
@@ -9,7 +8,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.rest.graphdb.ExecutingRestRequest;
 import org.neo4j.rest.graphdb.RecordingRestRequest;
-import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation;
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
 import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestNode;
@@ -28,19 +27,21 @@ public class BatchRestAPI extends RestAPI {
     
     public BatchRestAPI(String uri, ExecutingRestRequest executingRestRequest){
         super(uri);
-        this.restRequest =  new RecordingRestRequest(executingRestRequest);
+        this.restRequest =  new RecordingRestRequest(executingRestRequest, new RestOperations());
     }
     
     @Override
     protected RestRequest createRestRequest( String uri, String user, String password){
-        return new RecordingRestRequest(new ExecutingRestRequest(uri,  user,  password));
+        return new RecordingRestRequest(new ExecutingRestRequest(uri,  user,  password),new RestOperations());
     }
     
     
     @Override
     public Node createRestNode(RequestResult requestResult) {        
-        final long batchId = requestResult.getBatchId();       
-        return new RestNode("{"+batchId+"}", this);
+        final long batchId = requestResult.getBatchId();
+        Node node = new RestNode("{"+batchId+"}", this);
+        ((RecordingRestRequest)this.restRequest).getOperations().addToRestOperation(batchId, node);
+        return node;
     }
        
     @Override
@@ -51,16 +52,19 @@ public class BatchRestAPI extends RestAPI {
             data.put("data",props);
         }          
         RequestResult requestResult = this.restRequest.post(restRequest.getUri()+"/relationships", data); 
+        //RequestResult requestResult = restRequest.post( "relationships", data); 
         return createRestRelationship(requestResult, startNode);
     }
     
     @Override
     public RestRelationship createRestRelationship(RequestResult requestResult, Node startNode) {          
-        final long batchId = requestResult.getBatchId();      
-        return new RestRelationship("{"+batchId+"}", this);
+        final long batchId = requestResult.getBatchId();
+        RestRelationship relationship = new RestRelationship("{"+batchId+"}", this);
+        ((RecordingRestRequest)this.restRequest).getOperations().addToRestOperation(batchId, relationship);        
+        return relationship;
     }
     
-    public Collection<RestOperation> getRecordedOperations(){
-       return ((RecordingRestRequest) this.restRequest).getRecordedRequests();
+    public Map<Long,RestOperation> getRecordedOperations(){
+       return ((RecordingRestRequest) this.restRequest).getOperations().getRecordedRequests();
     }
 }
