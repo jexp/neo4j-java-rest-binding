@@ -22,14 +22,14 @@ public class ExecutingRestRequest implements RestRequest {
 
     public static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
     public static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
-    private final URI baseUri;
+    private final String baseUri;
     private final Client client;
 
-    public ExecutingRestRequest( URI baseUri ) {
+    public ExecutingRestRequest( String baseUri ) {
         this( baseUri, null, null );
     }
 
-    public ExecutingRestRequest( URI baseUri, String username, String password ) {
+    public ExecutingRestRequest( String baseUri, String username, String password ) {
         this.baseUri = uriWithoutSlash( baseUri );
         client = createClient();
         addAuthFilter(username, password);
@@ -50,14 +50,14 @@ public class ExecutingRestRequest implements RestRequest {
         return client;
     }
 
-    private ExecutingRestRequest( URI uri, Client client ) {
+    private ExecutingRestRequest( String uri, Client client ) {
         this.baseUri = uriWithoutSlash( uri );
         this.client = client;
     }
 
-    protected URI uriWithoutSlash( URI uri ) {
-        String uriString = uri.toString();
-        return uriString.endsWith( "/" ) ? uri( uriString.substring( 0, uriString.length() - 1 ) ) : uri;
+    protected String uriWithoutSlash( String uri ) {
+        String uriString = uri;
+        return  (uriString.endsWith( "/" ) ?  uriString.substring( 0, uriString.length() - 1 )  : uri);
     }
 
     public static String encode( Object value ) {
@@ -128,7 +128,7 @@ public class ExecutingRestRequest implements RestRequest {
 
     @Override
     public RestRequest with( String uri ) {
-        return new ExecutingRestRequest( uri( uri ), client );
+        return new ExecutingRestRequest(  uri , client );
     }
 
     private URI uri( String uri ) {
@@ -141,7 +141,7 @@ public class ExecutingRestRequest implements RestRequest {
 
  
     @Override
-    public URI getUri() {
+    public String getUri() {
         return baseUri;
     }
 }

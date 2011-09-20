@@ -27,8 +27,8 @@ public class RestEntity implements PropertyContainer {
         this( uri.toString(), restApi );
     }    
 
-    public RestEntity( String uri, RestAPI restApi ) {
-        this.restRequest = restApi.getRestRequest().with( uri );
+    public RestEntity( String uri, RestAPI restApi ) {     
+        this.restRequest = restApi.getRestRequest().with( uri );        
         this.restApi = restApi;       
     }      
 
@@ -42,7 +42,7 @@ public class RestEntity implements PropertyContainer {
     }
 
     public String getUri() {       
-        return this.restRequest.getUri().toString();
+        return this.restRequest.getUri();
     }
 
     Map<?, ?> getStructuralData() {

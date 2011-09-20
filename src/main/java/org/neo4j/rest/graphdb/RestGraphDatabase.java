@@ -16,11 +16,11 @@ public class RestGraphDatabase extends AbstractRemoteDatabase {
     	this.restAPI = api;    	
     }
     
-    public RestGraphDatabase( URI uri ) {     
+    public RestGraphDatabase( String uri ) {     
         this( new ExecutingRestRequest( uri ));
     }
 
-    public RestGraphDatabase( URI uri, String user, String password ) {        
+    public RestGraphDatabase( String uri, String user, String password ) {        
         this(new ExecutingRestRequest( uri, user, password ));
     }
     

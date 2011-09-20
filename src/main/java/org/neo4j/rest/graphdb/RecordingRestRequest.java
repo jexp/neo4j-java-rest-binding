@@ -19,26 +19,26 @@ import org.neo4j.rest.graphdb.RecordingRestRequest.RestOperation.Methods;
 public class RecordingRestRequest implements RestRequest {
     
     private Collection<RestOperation> operations = new ArrayList<RecordingRestRequest.RestOperation>();
-    protected final URI baseUri;   
+    protected final String baseUri;   
     private MediaType contentType;
     private MediaType acceptHeader;
     private AtomicLong currentBatchId = new AtomicLong(0);
-    private ExecutingRestRequest executingRestRequest;
+    private RestRequest restRequest;
    
     
     
-    public RecordingRestRequest( ExecutingRestRequest restRequest ) {
+    public RecordingRestRequest( RestRequest restRequest ) {       
         this( restRequest.getUri(), MediaType.APPLICATION_JSON_TYPE,  MediaType.APPLICATION_JSON_TYPE );
-        this.executingRestRequest = restRequest;
+        this.restRequest = restRequest;       
     }   
     
-    public RecordingRestRequest( ExecutingRestRequest restRequest, AtomicLong currentBatchid ) {
+    public RecordingRestRequest( RestRequest restRequest, AtomicLong currentBatchid ) {
        this(restRequest);
        this.currentBatchId = currentBatchid;
     }   
     
     
-    public RecordingRestRequest(URI baseUri, MediaType contentType, MediaType acceptHeader) {
+    public RecordingRestRequest(String baseUri, MediaType contentType, MediaType acceptHeader) {
         this.baseUri = uriWithoutSlash( baseUri );
         this.contentType = contentType;
         this.acceptHeader = acceptHeader;        
@@ -123,11 +123,11 @@ public class RecordingRestRequest implements RestRequest {
 
     @Override
     public RestRequest with(String uri) {        
-        return new RecordingRestRequest((ExecutingRestRequest)this.executingRestRequest.with(this.baseUri.toString()), this.currentBatchId);
+        return new RecordingRestRequest(this.restRequest.with(uri), this.currentBatchId);
     }
 
     @Override
-    public URI getUri() {
+    public String getUri() {
         return baseUri;
     }
 
@@ -151,9 +151,9 @@ public class RecordingRestRequest implements RestRequest {
         }
     }   
 
-    private URI uriWithoutSlash( URI uri ) {
-        String uriString = uri.toString();
-        return uriString.endsWith( "/" ) ? uri( uriString.substring( 0, uriString.length() - 1 ) ) : uri;
+    private String uriWithoutSlash( String uri ) {
+        String uriString = uri;
+        return uriString.endsWith( "/" ) ?  uriString.substring( 0, uriString.length() - 1 )  : uri;
     }
 
     public static String encode( Object value ) {

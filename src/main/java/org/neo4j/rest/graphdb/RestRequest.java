@@ -16,6 +16,6 @@ public interface RestRequest {
 
     RestRequest with(String uri);
 
-    URI getUri();
+    String getUri();
 
 }

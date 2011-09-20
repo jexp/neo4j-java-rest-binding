@@ -33,15 +33,15 @@ public class RestAPI  {
 		  this.restRequest = restRequest;		
 	  }
 	  
-	  public RestAPI( URI uri ) {
+	  public RestAPI( String uri ) {
 	      this.restRequest = createRestRequest(uri, null, null);
 	  }
 
-	  public RestAPI( URI uri, String user, String password ) {	      
+	  public RestAPI( String uri, String user, String password ) {	      
 	      this.restRequest = createRestRequest(uri, user, password); 
 	  }	  
 	 
-	  protected RestRequest createRestRequest( URI uri, String user, String password){
+	  protected RestRequest createRestRequest( String uri, String user, String password){
 	      return new ExecutingRestRequest(uri,  user,  password);
 	  }
 	 
@@ -146,12 +146,12 @@ public class RestAPI  {
 	  }
 	  
 	  
-	  public RequestResult executeBatch( BatchCallback batchCallback){
+	  public <T> T executeBatch( BatchCallback<T> batchCallback){
 	      BatchRestAPI batchRestApi = new BatchRestAPI(this.restRequest.getUri(), (ExecutingRestRequest)this.restRequest);
-	      batchCallback.recordBatch(batchRestApi);
+	      T batchResult = batchCallback.recordBatch(batchRestApi);
 	      Collection<RestOperation> operations = batchRestApi.getRecordedOperations();
-	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	     
-	      return response;
+	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	    
+	      return batchResult;
 	  }
 	  
 	  private Collection<Map<String,Object>> createBatchRequestData(Collection<RestOperation> operations){

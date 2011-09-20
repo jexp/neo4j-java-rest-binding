@@ -18,21 +18,21 @@ import org.neo4j.rest.graphdb.RestRequest;
 
 public class BatchRestAPI extends RestAPI {
 
-    public BatchRestAPI( URI uri ) {
+    public BatchRestAPI( String uri ) {
         super(uri);
     }
 
-    public BatchRestAPI( URI uri, String user, String password ) {       
+    public BatchRestAPI( String uri, String user, String password ) {       
         super(uri, user, password); 
     }
     
-    public BatchRestAPI(URI uri, ExecutingRestRequest executingRestRequest){
+    public BatchRestAPI(String uri, ExecutingRestRequest executingRestRequest){
         super(uri);
         this.restRequest =  new RecordingRestRequest(executingRestRequest);
     }
     
     @Override
-    protected RestRequest createRestRequest( URI uri, String user, String password){
+    protected RestRequest createRestRequest( String uri, String user, String password){
         return new RecordingRestRequest(new ExecutingRestRequest(uri,  user,  password));
     }
     
@@ -49,8 +49,8 @@ public class BatchRestAPI extends RestAPI {
         Map<String, Object> data = MapUtil.map("to", ((RestNode)endNode).getUri(), "type", type.name());
         if (props!=null && props.size()>0) {
             data.put("data",props);
-        }         
-        RequestResult requestResult = restRequest.post( "relationships", data); 
+        }          
+        RequestResult requestResult = this.restRequest.post(restRequest.getUri()+"/relationships", data); 
         return createRestRelationship(requestResult, startNode);
     }
     
