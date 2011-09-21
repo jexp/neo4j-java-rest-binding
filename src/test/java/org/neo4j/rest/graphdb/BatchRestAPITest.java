@@ -37,28 +37,30 @@ public class BatchRestAPITest extends RestTestBase {
                 return tNodes;
             }
         });     
-        //System.out.println(response.getEntity());     
-        Assert.assertEquals( "node1", getRestGraphDb().getNodeById(1).getProperty("name") );     
-        Assert.assertEquals( "node2", getRestGraphDb().getNodeById(2).getProperty("name") );     
+       
+        Assert.assertEquals( "node1", response.getN1().getProperty("name") );     
+        Assert.assertEquals( "node2", response.getN2().getProperty("name") );     
     }
    
     @Test
     public void testCreateRelationship(){
-       // RequestResult response =this.restAPI.executeBatch(new BatchCallback() {
-        this.restAPI.executeBatch(new BatchCallback() {
+      TwoNodesOneRel response =this.restAPI.executeBatch(new BatchCallback() {      
             @Override
-            public Void recordBatch(RestAPI batchRestApi) {               
-             
+            public TwoNodesOneRel recordBatch(RestAPI batchRestApi) {               
+                TwoNodesOneRel tNodes;
                 Node n1 = batchRestApi.createNode(MapUtil.map("name", "newnode1"));                 
                 Node n2 = batchRestApi.createNode(MapUtil.map("name", "newnode2"));              
-                Relationship rel = batchRestApi.createRelationship(n1, n2, Type.TEST, MapUtil.map("name", "rel") );
-                return null;
+                RestRelationship rel = batchRestApi.createRelationship(n1, n2, Type.TEST, MapUtil.map("name", "rel") );
+                tNodes = new TwoNodesOneRel(n1, n2,rel);
+                return tNodes;
             }
         });      
         //System.out.println(response.getEntity());      
-        Node n1 =  getRestGraphDb().getNodeById(3);   
-        Node n2 =  getRestGraphDb().getNodeById(4); 
-        Relationship rel = n1.getSingleRelationship(Type.TEST, Direction.OUTGOING);
+        Node n1 =  response.getN1();   
+        Node n2 =  response.getN2(); 
+        RestRelationship rel = response.getRel();
+        System.out.println(((RestNode)n1).getStructuralData().toString());
+        System.out.println(((RestNode)n1).getRelationships().toString());
       
         Relationship foundRelationship = TestHelper.firstRelationshipBetween( n1.getRelationships( Type.TEST, Direction.OUTGOING ), n1, n2 );        
         Assert.assertNotNull( "found relationship", foundRelationship );
@@ -79,6 +81,30 @@ public class BatchRestAPITest extends RestTestBase {
             n2 = node2;
         }
         
+        public Node getN1() {
+            return n1;
+        }
+
+        public Node getN2() {
+            return n2;
+        }
+    }
+    
+    static class TwoNodesOneRel{
+        Node n1;
+        Node n2;
+        RestRelationship rel;
+        
+        TwoNodesOneRel(Node node1, Node node2, RestRelationship relationship){
+            n1 = node1;
+            n2 = node2;
+            rel = relationship;
+        }
+        
+        public RestRelationship getRel() {
+            return rel;
+        }
+
         public Node getN1() {
             return n1;
         }
