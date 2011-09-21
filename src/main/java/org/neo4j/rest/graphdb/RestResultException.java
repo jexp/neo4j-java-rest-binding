@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 public class RestResultException extends RuntimeException {
-    public RestResultException(Map<?, ?> result) {
-        super(format(result));
+    public RestResultException(Object result) {
+        super(format(toMap(result)));
     }
 
     private static String format(Map<?, ?> result) {
+        if (result==null) return "Unknown Exception";
         StringBuilder sb = new StringBuilder();
         sb.append(result.get("message")).append(" at\n");
         sb.append(result.get("exception")).append("\n");
@@ -21,7 +22,14 @@ public class RestResultException extends RuntimeException {
         return sb.toString();
     }
 
-    public static boolean isExceptionResult(Map<?, ?> result) {
-        return result.containsKey("exception") && result.containsKey("message");
+    public static boolean isExceptionResult(Object result) {
+        final Map<String, Object> map = toMap(result);
+        return map!=null && map.containsKey("exception") && map.containsKey("message");
+    }
+
+    private static Map<String, Object> toMap(Object result) {
+        if (!(result instanceof Map)) return null;
+        return (Map<String, Object>) result;
+
     }
 }

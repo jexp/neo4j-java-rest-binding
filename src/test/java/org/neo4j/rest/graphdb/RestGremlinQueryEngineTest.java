@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
@@ -104,7 +105,8 @@ public class RestGremlinQueryEngineTest extends RestTestBase {
         System.out.println(result);
     }*/
     
- 
+
+    @Ignore
     @Test
     public void testQueryList2(){
         final String queryString = "[g.v(neo),g.v(trinity)]._().type.as('person.type').name.as('person.name').table(new Table()).cap >> 1";       

@@ -29,6 +29,7 @@ public class RestOperations {
         
         private Methods method;
         private Object data;
+        private final String baseUri;
         private long batchId;
         private String uri;
         private MediaType contentType;
@@ -37,18 +38,19 @@ public class RestOperations {
         
        
 
-        public RestOperation(long batchId, Methods method, String uri, MediaType contentType, MediaType acceptHeader, Object data){
+        public RestOperation(long batchId, Methods method, String uri, MediaType contentType, MediaType acceptHeader, Object data, String baseUri){
             this.batchId = batchId;
             this.method = method;
             this.uri = uri;
             this.contentType = contentType;
             this.acceptHeader = acceptHeader;
             this.data = data;
+            this.baseUri = baseUri;
         }
         
-        public void updateEntity(Object updateObject){            
-            if (this.entity instanceof RestEntity){                    
-                ((RestEntity)this.entity).updateRestEntity((RestEntity)updateObject);                   
+        public void updateEntity(Object updateObject, RestAPI restApi){
+            if (this.entity instanceof UpdatableRestResult){
+                ((UpdatableRestResult)this.entity).updateFrom(updateObject, restApi);
             }
         }
         
@@ -83,16 +85,22 @@ public class RestOperations {
         public MediaType getAcceptHeader() {
             return acceptHeader;
         }
-          
+
+        public String getBaseUri() {
+            return baseUri;
+        }
+        public boolean isSameUri(String baseUri) {
+            return this.baseUri.equals(baseUri);
+        }
     }
     
     public Map<Long,RestOperation> getRecordedRequests(){
         return this.operations;
     }
     
-    public RequestResult record(Methods method, String path, Object data){
+    public RequestResult record(Methods method, String path, Object data, String baseUri){
         long batchId = this.currentBatchId.incrementAndGet();
-        RestOperation r = new RestOperation(batchId,method,path,this.contentType,this.acceptHeader,data);
+        RestOperation r = new RestOperation(batchId,method,path,this.contentType,this.acceptHeader,data,baseUri);
         operations.put(batchId,r);
         return RequestResult.batchResult(r);
     }

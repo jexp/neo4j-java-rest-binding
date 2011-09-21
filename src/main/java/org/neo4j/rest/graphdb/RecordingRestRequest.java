@@ -19,9 +19,9 @@ public class RecordingRestRequest implements RestRequest {
     private MediaType acceptHeader;   
     private RestRequest restRequest;
     private RestOperations operations;
-   
-    
-    
+    private boolean stop;
+
+
     public RestOperations getOperations() {
         return operations;
     }
@@ -41,30 +41,26 @@ public class RecordingRestRequest implements RestRequest {
         this.baseUri = uriWithoutSlash( baseUri );
         this.contentType = contentType;
         this.acceptHeader = acceptHeader;        
-        
-    }   
-       
-
-  
+    }
 
     @Override
     public RequestResult get(String path, Object data) {
-       return this.record(Methods.GET, path, data);
+       return this.record(Methods.GET, path, data, baseUri);
     }
 
     @Override
     public RequestResult delete(String path) {
-        return this.record(Methods.DELETE, path, null);
+        return this.record(Methods.DELETE, path, null, baseUri);
     }
 
     @Override
     public RequestResult post(String path, Object data) {       
-        return this.record(Methods.POST, path, data);
+        return this.record(Methods.POST, path, data, baseUri);
     }
 
     @Override
     public RequestResult put(String path, Object data) {
-        return this.record(Methods.PUT, path, data);
+        return this.record(Methods.PUT, path, data, baseUri);
         
     }
 
@@ -80,11 +76,12 @@ public class RecordingRestRequest implements RestRequest {
 
     @Override
     public RequestResult get(String path) {
-        return this.record(Methods.GET, path, null);
+        return this.record(Methods.GET, path, null, baseUri);
     }    
     
-    public RequestResult record(Methods method, String path, Object data){       
-        return this.operations.record(method, path, data);
+    public RequestResult record(Methods method, String path, Object data, String baseUri){
+        if (stop) throw new IllegalStateException("BatchRequest already executed");
+        return this.operations.record(method, path, data,baseUri);
     }
     
    
@@ -106,6 +103,10 @@ public class RecordingRestRequest implements RestRequest {
     
     public Map<Long,RestOperation> getRecordedRequests(){
         return this.operations.getRecordedRequests();
+    }
+
+    public void stop() {
+        this.stop = true;
     }
 }
 

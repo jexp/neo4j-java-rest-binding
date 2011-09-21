@@ -32,7 +32,7 @@ public class RestTestBase {
     @Before
     public void setUp() throws URISyntaxException {
         neoServer.cleanDb();
-        restGraphDb = new RestGraphDatabase(new URI(SERVER_ROOT_URI));
+        restGraphDb = new RestGraphDatabase(SERVER_ROOT_URI);
     }
 
     @After
