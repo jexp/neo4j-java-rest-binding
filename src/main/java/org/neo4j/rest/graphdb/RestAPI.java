@@ -4,7 +4,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.core.Response.Status;
 import org.neo4j.graphdb.Node;
@@ -150,7 +153,9 @@ public class RestAPI  {
 	      BatchRestAPI batchRestApi = new BatchRestAPI(this.restRequest.getUri(), (ExecutingRestRequest)this.restRequest);
 	      T batchResult = batchCallback.recordBatch(batchRestApi);
 	      Map<Long, RestOperation> operations = batchRestApi.getRecordedOperations();
-	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	    
+	      RequestResult response = this.restRequest.post("batch", createBatchRequestData(operations));	
+	      Map<Long,Object> mappedObjects = convertRequestResultToEntities(response);	     
+	      updateRestOperations(operations, mappedObjects);
 	      return batchResult;
 	  }
 	  
@@ -165,9 +170,39 @@ public class RestAPI  {
 	            }
 	            params.put("id", operation.getBatchId());
 	            batch.add(params);	          
-	        } 
-	        System.out.println(batch.toString());
+	        }	        
 	        return batch;
+	  }
+	  
+	  private Map<Long,Object> convertRequestResultToEntities(RequestResult response){
+	      Object result = JsonHelper.readJson(response.getEntity());
+	      Collection<RestResultConverter> converters = getConverters();
+	      //TODO handle errors
+	      Collection<Map<String,Object>> responseCollection = (Collection<Map<String,Object>>)result;
+	      Map<Long,Object> mappedObjects = new HashMap<Long,Object>(responseCollection.size());
+	      for (Map<String,Object> entry : responseCollection) {
+	           for (RestResultConverter converter : converters){
+	               if (converter.canHandle(entry.get("body"))){
+	                   Object entity = converter.convertFromRepresentation((Map<String,Object>)entry.get("body"));            
+	                   mappedObjects.put(Long.valueOf((Integer)entry.get("id")), entity);
+	                   break;
+	               }	              
+	           }               
+          }	     
+	      return mappedObjects;
+	  }	 
+	  
+	  private void updateRestOperations( Map<Long, RestOperation> operations, Map<Long,Object> mappedObjects){	      
+	      for (RestOperation operation : operations.values()){
+	         operation.updateEntity(mappedObjects.get(operation.getBatchId()));
+	      }
+	  }
+	  
+	  private Collection<RestResultConverter> getConverters(){
+	      Collection<RestResultConverter> converters = new ArrayList<RestResultConverter>();
+	      RestEntityExtractor extr = new RestEntityExtractor(this);
+	      converters.add(extr);
+	      return converters;
 	  }
 
 

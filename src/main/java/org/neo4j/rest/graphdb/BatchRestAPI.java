@@ -51,7 +51,7 @@ public class BatchRestAPI extends RestAPI {
         if (props!=null && props.size()>0) {
             data.put("data",props);
         }          
-        RequestResult requestResult = this.restRequest.post(restRequest.getUri()+"/relationships", data); 
+        RequestResult requestResult = restRequest.post(restRequest.getUri()+"/relationships", data); 
         //RequestResult requestResult = restRequest.post( "relationships", data); 
         return createRestRelationship(requestResult, startNode);
     }

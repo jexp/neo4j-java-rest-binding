@@ -35,13 +35,7 @@ public class RestOperations {
         private MediaType acceptHeader;
         private Object entity;
         
-        public Object getEntity() {
-            return entity;
-        }
-
-        public void setEntity(Object entity) {
-            this.entity = entity;
-        }
+       
 
         public RestOperation(long batchId, Methods method, String uri, MediaType contentType, MediaType acceptHeader, Object data){
             this.batchId = batchId;
@@ -50,6 +44,20 @@ public class RestOperations {
             this.contentType = contentType;
             this.acceptHeader = acceptHeader;
             this.data = data;
+        }
+        
+        public void updateEntity(Object updateObject){            
+            if (this.entity instanceof RestEntity){                    
+                ((RestEntity)this.entity).updateRestEntity((RestEntity)updateObject);                   
+            }
+        }
+        
+        public Object getEntity() {
+            return entity;
+        }
+
+        public void setEntity(Object entity) {
+            this.entity = entity;
         }
         
         public Methods getMethod() {

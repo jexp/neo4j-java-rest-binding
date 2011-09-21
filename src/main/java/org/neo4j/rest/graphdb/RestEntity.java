@@ -44,6 +44,12 @@ public class RestEntity implements PropertyContainer {
     public String getUri() {       
         return this.restRequest.getUri();
     }
+    
+    public void updateRestEntity(RestEntity updateEntity){
+        this.structuralData = updateEntity.getStructuralData();
+        this.propertyData = updateEntity.getPropertyData();    
+        this.lastTimeFetchedPropertyData = System.currentTimeMillis();
+    }
 
     Map<?, ?> getStructuralData() {
         if ( this.structuralData == null ) {
@@ -53,7 +59,7 @@ public class RestEntity implements PropertyContainer {
     }
 
     Map<String, Object> getPropertyData() {
-        if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() ) ) {
+        if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() ) ) {            
         	RequestResult response = restRequest.get( "properties" );
             boolean ok = response.statusIs( Status.OK );
             if ( ok ) {
@@ -66,7 +72,7 @@ public class RestEntity implements PropertyContainer {
         return this.propertyData;
     }
 
-    private boolean timeElapsed( long since, long isItGreaterThanThis ) {
+    private boolean timeElapsed( long since, long isItGreaterThanThis ) {       
         return System.currentTimeMillis() - since > isItGreaterThanThis;
     }
 
