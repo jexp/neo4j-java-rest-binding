@@ -5,7 +5,6 @@ import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.rest.graphdb.util.ArrayConverter;
-import org.neo4j.rest.graphdb.RequestResult;
 
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
@@ -13,7 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class RestEntity implements PropertyContainer, UpdatableRestResult {
+public class RestEntity implements PropertyContainer, UpdatableRestResult<RestEntity> {
     private Map<?, ?> structuralData;
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
@@ -45,7 +44,7 @@ public class RestEntity implements PropertyContainer, UpdatableRestResult {
         return this.restRequest.getUri();
     }
     
-    public void updateRestEntity(RestEntity updateEntity, RestAPI restApi){
+    public void updateFrom(RestEntity updateEntity, RestAPI restApi){
         this.restApi = restApi;
         this.restRequest = restApi.getRestRequest().with(updateEntity.getUri());
         this.structuralData = updateEntity.getStructuralData();
@@ -186,10 +185,4 @@ public class RestEntity implements PropertyContainer, UpdatableRestResult {
     public RestAPI getRestApi() {
 		return restApi;
 	}
-
-
-    @Override
-    public void updateFrom(Object newValue, RestAPI restApi) {
-        updateRestEntity((RestEntity) newValue,restApi);
-    }
 }

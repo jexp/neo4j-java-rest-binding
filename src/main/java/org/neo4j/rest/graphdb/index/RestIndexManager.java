@@ -1,25 +1,16 @@
 package org.neo4j.rest.graphdb.index;
 
-import com.sun.jersey.api.client.ClientResponse;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.AutoIndexer;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexManager;
-import org.neo4j.graphdb.index.RelationshipAutoIndexer;
-import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.graphdb.index.*;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
-import org.neo4j.rest.graphdb.JsonHelper;
 import org.neo4j.rest.graphdb.RequestResult;
 import org.neo4j.rest.graphdb.RestAPI;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.RestRequest;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class RestIndexManager implements IndexManager {
     public static final String RELATIONSHIP = "relationship";
@@ -33,35 +24,21 @@ public class RestIndexManager implements IndexManager {
     }
 
     public boolean existsForNodes( String indexName ) {
-        return indexInfo(NODE).containsKey( indexName );
+        return indexInfo(NODE).exists(indexName);
     }
 
     @SuppressWarnings({"unchecked"})
-    private Map<String, ?> indexInfo( final String indexType ) {
-    	RequestResult response = restRequest.get( "index/" + indexType );
-        if ( response.statusIs(ClientResponse.Status.NO_CONTENT ) ) return Collections.emptyMap();
-        return (Map<String, ?>) response.toMap();
+    private IndexInfo indexInfo(final String indexType) {
+    	return restApi.indexInfo(indexType);
     }
     
     @SuppressWarnings("unchecked")
 	private boolean checkIndex(  final String indexType, final String indexName, Map<String, String> config ){
-    	Map<String, String> existingConfig = (Map<String, String>) indexInfo(indexType).get(indexName);
-    	if (config == null){
-    		return existingConfig!=null;
-    	}else {
-    		if (existingConfig == null){
-    			return false;
-    		}else{      			
-    			if (existingConfig.entrySet().containsAll(config.entrySet())){    				
-    				return true;
-    			}else{
-    				throw new IllegalArgumentException("Index with the same name but different config exists!");
-    			}    			
-    		}    		
-    	}    	
+        final IndexInfo indexInfo = indexInfo(indexType);
+        return indexInfo.checkConfig(indexName, config);
     }
-    
-    public boolean noConfigProvided(Map<String,String> config) { 
+
+    public boolean noConfigProvided(Map<String,String> config) {
     	return config == null || config.isEmpty();
     }
 
@@ -83,12 +60,12 @@ public class RestIndexManager implements IndexManager {
     }
 
     public String[] nodeIndexNames() {
-        Set<String> keys = indexInfo(NODE).keySet();
-        return keys.toArray( new String[keys.size()] );
+        final IndexInfo indexInfo = indexInfo(NODE);
+        return indexInfo.indexNames();
     }
 
     public boolean existsForRelationships( String indexName ) {
-        return indexInfo(RELATIONSHIP).containsKey( indexName );
+        return indexInfo(RELATIONSHIP).exists(indexName);
     }
 
     public RelationshipIndex forRelationships( String indexName ) {
@@ -116,14 +93,13 @@ public class RestIndexManager implements IndexManager {
     }
 
     public String[] relationshipIndexNames() {
-        Set<String> keys = indexInfo(RELATIONSHIP).keySet();
-        return keys.toArray( new String[keys.size()] );
+        return indexInfo(RELATIONSHIP).indexNames();
     }
 
     @SuppressWarnings({"unchecked"})
     public Map<String, String> getConfiguration( Index<? extends PropertyContainer> index ) {
         String typeName = typeName(index.getEntityType());
-        return (Map<String, String>) indexInfo(typeName).get(index.getName());
+        return indexInfo(typeName).getConfig(index.getName());
     }
 
     private String typeName(Class<? extends PropertyContainer> type) {

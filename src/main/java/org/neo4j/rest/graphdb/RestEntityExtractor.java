@@ -10,8 +10,12 @@ public class RestEntityExtractor implements RestResultConverter {
         this.restApi = restApi;
     }
 
-    public Object convertFromRepresentation(Object value) {       
-        if (value instanceof Map) {           
+    public Object convertFromRepresentation(RequestResult requestResult) {
+        return convertFromRepresentation(requestResult.toMap());
+    }
+
+    public Object convertFromRepresentation(Object value) {
+        if (value instanceof Map) {
             RestEntity restEntity = createRestEntity((Map) value);
             if (restEntity != null) return restEntity;
         }       
@@ -30,7 +34,6 @@ public class RestEntityExtractor implements RestResultConverter {
         return null;
     }
 
-    @Override
     public boolean canHandle(Object value) {
         if (value instanceof Map) {
             final String uri = (String) ((Map)value).get("self");

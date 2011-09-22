@@ -1,15 +1,17 @@
 package org.neo4j.rest.graphdb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.neo4j.helpers.collection.MapUtil.map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.neo4j.helpers.collection.MapUtil.map;
 
 public class BatchRestAPITest extends RestTestBase {
     private RestAPI restAPI;
@@ -74,7 +76,21 @@ public class BatchRestAPITest extends RestTestBase {
         assertThat(r.n1.getRelationships(Type.TEST), new IsRelationshipToNodeMatcher(r.n1, r.n2));
         assertThat(r.allRelationships, new IsRelationshipToNodeMatcher(r.n1, r.n2));
     }
-    
+
+    @Test
+    public void testQueryIndex() {
+        final MatrixDataGraph matrixDataGraph = new MatrixDataGraph(getGraphDatabase());
+        matrixDataGraph.createNodespace();
+        final IndexHits<Node> heroes = restAPI.executeBatch(new BatchCallback<IndexHits<Node>>() {
+            @Override
+            public IndexHits<Node> recordBatch(RestAPI batchRestApi) {
+                final Index<Node> index = batchRestApi.index().forNodes("heroes");
+                return index.query("name:Neo");
+            }
+        });
+        assertEquals("1 hero",1,heroes.size());
+        assertEquals("Neo indexed",matrixDataGraph.getNeoNode(),heroes.iterator().next());
+    }
     static class TestBatchResult {
         Node n1;
         Node n2;

@@ -1,12 +1,11 @@
 package org.neo4j.rest.graphdb;
 
+import org.neo4j.rest.graphdb.RestOperations.RestOperation.Methods;
+
+import javax.ws.rs.core.MediaType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.ws.rs.core.MediaType;
-
-import org.neo4j.rest.graphdb.RestOperations.RestOperation.Methods;
 
 public class RestOperations {
     private AtomicLong currentBatchId = new AtomicLong(0);
@@ -18,8 +17,13 @@ public class RestOperations {
         this.contentType = MediaType.APPLICATION_JSON_TYPE;
         this.acceptHeader = MediaType.APPLICATION_JSON_TYPE;
     }
-    
-    public static class RestOperation { 
+
+    public RestOperation getOperation(Long batchId) {
+        return operations.get(batchId);
+    }
+
+    public static class RestOperation {
+
         public enum Methods{
             POST,
             PUT,
@@ -35,7 +39,8 @@ public class RestOperations {
         private MediaType contentType;
         private MediaType acceptHeader;
         private Object entity;
-        
+        private RestResultConverter resultConverter;
+
        
 
         public RestOperation(long batchId, Methods method, String uri, MediaType contentType, MediaType acceptHeader, Object data, String baseUri){
@@ -58,8 +63,13 @@ public class RestOperations {
             return entity;
         }
 
-        public void setEntity(Object entity) {
+        public RestResultConverter getResultConverter() {
+            return resultConverter;
+        }
+
+        public void setEntity(Object entity, RestResultConverter resultConverter) {
             this.entity = entity;
+            this.resultConverter = resultConverter;
         }
         
         public Methods getMethod() {
@@ -105,7 +115,7 @@ public class RestOperations {
         return RequestResult.batchResult(r);
     }
     
-    public void addToRestOperation(long batchId, Object entity){
-        this.operations.get(batchId).setEntity(entity);
+    public void addToRestOperation(long batchId, Object entity, final RestResultConverter resultConverter){
+        this.operations.get(batchId).setEntity(entity, resultConverter);
     }
 }

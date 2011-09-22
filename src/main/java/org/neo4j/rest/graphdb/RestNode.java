@@ -1,17 +1,15 @@
 package org.neo4j.rest.graphdb;
 
-import static java.util.Arrays.asList;
-
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Traverser.Order;
 import org.neo4j.helpers.collection.CombiningIterable;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.rest.graphdb.RequestResult;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Map;
+
+import static java.util.Arrays.asList;
 
 public class RestNode extends RestEntity implements Node {
     public RestNode( URI uri, RestAPI restApi ) {

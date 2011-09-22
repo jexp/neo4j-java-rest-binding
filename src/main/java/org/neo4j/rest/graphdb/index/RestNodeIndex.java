@@ -2,11 +2,7 @@ package org.neo4j.rest.graphdb.index;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.rest.graphdb.RestAPI;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
-import org.neo4j.rest.graphdb.RestNode;
 import org.neo4j.rest.graphdb.RestRequest;
-
-import java.util.Map;
 
 /**
  * @author mh
@@ -21,7 +17,4 @@ public class RestNodeIndex extends RestIndex<Node> {
         return Node.class;
     }
 
-    protected Node createEntity(Map<?, ?> item) {
-        return new RestNode((Map<?, ?>) item, restApi);
-    }
 }

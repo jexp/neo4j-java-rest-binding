@@ -16,12 +16,10 @@
 package org.neo4j.rest.graphdb;
 
 import com.sun.jersey.api.client.ClientResponse;
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
-
-import org.neo4j.rest.graphdb.RestOperations.RestOperation;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -32,13 +30,13 @@ import java.util.Map;
 */
 public class RequestResult {
     private final int status;
-    private final URI location;
+    private final String location;
     private final String entity;
     private long batchId;
     private boolean batchResult = false;
 
     
-    RequestResult(int status, URI location, String entity) {
+    RequestResult(int status, String location, String entity) {
         this.status = status;
         this.location = location;
         this.entity = entity;
@@ -59,16 +57,19 @@ public class RequestResult {
         final URI location = clientResponse.getLocation();
         final String data = status != Response.Status.NO_CONTENT.getStatusCode() ? clientResponse.getEntity(String.class) : null;
         clientResponse.close();
-        return new RequestResult(status, location, data);
+        return new RequestResult(status, uriString(location), data);
     }
-    
-  
+
+    private static String uriString(URI location) {
+        return location==null ? null : location.toString();
+    }
+
 
     public int getStatus() {
         return status;
     }
 
-    public URI getLocation() {
+    public String getLocation() {
         return location;
     }
 
@@ -101,4 +102,7 @@ public class RequestResult {
         return batchResult;
     }
 
+    public static RequestResult extractFrom(Map<String, Object> batchResult) {
+        return new RequestResult(200, (String) batchResult.get("location"),JsonHelper.createJsonFrom(batchResult.get("body")));
+    }
 }

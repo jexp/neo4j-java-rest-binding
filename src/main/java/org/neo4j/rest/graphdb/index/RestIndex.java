@@ -7,12 +7,6 @@ import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.index.lucene.QueryContext;
 import org.neo4j.rest.graphdb.*;
 
-import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @author mh
  * @since 24.01.11
@@ -38,9 +32,18 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
 
     public void add( T entity, String key, Object value ) {
         final RestEntity restEntity = (RestEntity) entity;
+        final String indexPath = indexPath(key, value);
+        try {
+            addToIndex(restEntity, indexPath);
+        } catch (Exception e) {
+          throw new RuntimeException(String.format("Error adding element %d %s %s to index %s", restEntity.getId(), key, value, indexName));
+        }
+    }
+
+    private void addToIndex(RestEntity restEntity, String indexPath) {
         String uri = restEntity.getUri();
-        final RequestResult response = restRequest.post(indexPath(key, value), uri);
-        if (response.getStatus() != 201) throw new RuntimeException(String.format("Error adding element %d %s %s to index %s", restEntity.getId(), key, value, indexName));
+        final RequestResult response = restRequest.post(indexPath, uri);
+        if (response.getStatus() != 201) throw new RuntimeException("Error adding to index");
     }
 
     private String indexPath( String key, Object value ) {
@@ -51,42 +54,36 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
     }
 
     public void remove( T entity, String key, Object value ) {
-        restRequest.delete( indexPath( key, value ) + "/" + ( (RestEntity) entity ).getId() );
+        final String indexPath = indexPath(key, value) + "/" + ((RestEntity) entity).getId();
+        deleteIndex(indexPath);
+    }
 
+    private void deleteIndex(String indexPath) {
+        restRequest.delete(indexPath);
     }
 
     public void remove(T entity, String key) {
-        restRequest.delete( indexPath( key,null ) + "/" + ( (RestEntity) entity ).getId() );
+        deleteIndex(indexPath(key, null) + "/" + ((RestEntity) entity).getId());
     }
 
     public void remove(T entity) {
-        restRequest.delete( indexPath( null, null) + "/" + ( (RestEntity) entity ).getId() );
+        deleteIndex(indexPath( null, null) + "/" + ( (RestEntity) entity ).getId());
     }
 
     public void delete() {
-        restRequest.delete(indexPath(null,null));
+        deleteIndex(indexPath(null,null));
     }
 
     public org.neo4j.graphdb.index.IndexHits<T> get( String key, Object value ) {
-    	RequestResult response = restRequest.get( indexPath( key, value ) );
-        return handleQueryResults(response);
+        final String indexPath = indexPath(key, value);
+        return restApi.queryIndex(indexPath,getEntityType());
     }
+
 
     public IndexHits<T> query( String key, Object value ) {
-    	RequestResult response = restRequest.get( queryPath( key, value ) );
-        return handleQueryResults(response);
+        final String indexPath = queryPath(key, value);
+        return restApi.queryIndex(indexPath, getEntityType());
     }
-
-    private IndexHits<T> handleQueryResults(RequestResult response) {
-        if ( response.statusIs( Response.Status.OK ) ) {
-            Collection hits = (Collection) response.toEntity();
-            return new SimpleIndexHits<T>( hits, hits.size() );
-        } else {
-            return new SimpleIndexHits<T>( Collections.emptyList(), 0 );
-        }
-    }
-
-    protected abstract T createEntity( Map<?, ?> item );
 
     public org.neo4j.graphdb.index.IndexHits<T> query( Object value ) {
         if (value instanceof QueryContext) {
@@ -95,53 +92,4 @@ public abstract class RestIndex<T extends PropertyContainer> implements Index<T>
         return query("null",value);
     }
 
-    private class SimpleIndexHits<T extends PropertyContainer> implements IndexHits<T> {
-        private Collection<Object> hits;
-        private int size;
-        private Iterator<Object> iterator;
-
-        public SimpleIndexHits( Collection<Object> hits, int size ) {
-            this.hits = hits;
-            this.iterator = this.hits.iterator();
-            this.size = size;
-        }
-
-        public int size() {
-            return size;
-        }
-
-        public void close() {
-
-        }
-
-        public T getSingle() {
-            Iterator<Object> it = hits.iterator();
-            return it.hasNext() ? transform( it.next() ) : null;
-        }
-
-        public float currentScore() {
-            return 0;
-        }
-
-        public Iterator<T> iterator() {
-            return this;
-        }
-
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-
-        public T next() {
-            Object value = iterator.next();
-            return transform( value );
-        }
-
-        private T transform( Object value ) {
-            return (T) createEntity( (Map<?, ?>) value );
-        }
-
-        public void remove() {
-
-        }
-    }
 }

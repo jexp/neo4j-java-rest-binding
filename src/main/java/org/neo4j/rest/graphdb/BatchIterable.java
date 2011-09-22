@@ -1,15 +1,12 @@
 package org.neo4j.rest.graphdb;
 
-import org.neo4j.helpers.collection.IterableWrapper;
-
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * @author mh
  * @since 21.09.11
  */
-public class BatchIterable<T> implements Iterable<T>, UpdatableRestResult {
+public class BatchIterable<T> implements Iterable<T>, UpdatableRestResult<Iterable<T>> {
     private final long batchId;
     private RestAPI restApi;
     private Iterable<T> data;
@@ -19,8 +16,8 @@ public class BatchIterable<T> implements Iterable<T>, UpdatableRestResult {
     }
 
     @Override
-    public void updateFrom(Object newValue, RestAPI restApi) {
-        this.data = (Iterable<T>) newValue;
+    public void updateFrom(Iterable<T> newValue, RestAPI restApi) {
+        this.data = newValue;
         this.restApi = restApi;
     }
 
