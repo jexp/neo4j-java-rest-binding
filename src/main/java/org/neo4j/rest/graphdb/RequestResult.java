@@ -18,7 +18,13 @@ package org.neo4j.rest.graphdb;
 import com.sun.jersey.api.client.ClientResponse;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.StatusType;
+
+import org.neo4j.rest.graphdb.RestOperations.RestOperation;
+
 import java.net.URI;
+import java.util.Map;
+
 
 /**
 * @author Klemens Burchardi
@@ -28,11 +34,24 @@ public class RequestResult {
     private final int status;
     private final URI location;
     private final String entity;
+    private long batchId;
+    private boolean batchResult = false;
 
+    
     RequestResult(int status, URI location, String entity) {
         this.status = status;
         this.location = location;
         this.entity = entity;
+    }
+    
+    RequestResult(long batchId) {
+       this(0,null,"");
+       this.batchResult = true;
+       this.batchId = batchId;
+    }
+    
+    public static RequestResult batchResult(RestOperation restOperation){
+        return new RequestResult(restOperation.getBatchId());
     }
 
     public static RequestResult extractFrom(ClientResponse clientResponse) {
@@ -42,6 +61,8 @@ public class RequestResult {
         clientResponse.close();
         return new RequestResult(status, location, data);
     }
+    
+  
 
     public int getStatus() {
         return status;
@@ -54,4 +75,30 @@ public class RequestResult {
     public String getEntity() {
         return entity;
     }
+
+    public Object toEntity() {
+        return JsonHelper.jsonToSingleValue( getEntity() );        
+    }
+
+    public Map<?, ?> toMap() {
+        final String json = getEntity();
+        return JsonHelper.jsonToMap(json);
+    }
+
+    public boolean statusIs( StatusType status ) {
+        return getStatus() == status.getStatusCode();
+    }
+
+    public boolean statusOtherThan( StatusType status ) {
+        return !statusIs(status );
+    }
+    
+    public long getBatchId() {
+        return batchId;
+    }
+    
+    public boolean isBatchResult(){
+        return batchResult;
+    }
+
 }

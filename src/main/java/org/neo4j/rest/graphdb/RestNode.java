@@ -24,25 +24,14 @@ public class RestNode extends RestEntity implements Node {
 
     public RestNode( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
-    }
-
+    }    
+  
     public Relationship createRelationshipTo( Node toNode, RelationshipType type ) {
-    	 return RestRelationship.create(this,(RestNode)toNode,type,null);
+    	 return this.restApi.createRelationship(this,(RestNode)toNode,type,null);
     }
 
     public Iterable<Relationship> getRelationships() {
-        return wrapRelationships( restRequest.get( "relationships/all" ) );
-    }
-
-    @SuppressWarnings("unchecked")
-    private Iterable<Relationship> wrapRelationships(  RequestResult requestResult ) {
-        return new IterableWrapper<Relationship, Object>(
-                (Collection<Object>) restRequest.toEntity( requestResult ) ) {
-            @Override
-            protected Relationship underlyingObjectToObject( Object data ) {
-                return new RestRelationship( (Map<?, ?>) data, getRestApi() );
-            }
-        };
+        return restApi.wrapRelationships( restRequest.get( "relationships/all" ) );
     }
 
     public Iterable<Relationship> getRelationships( RelationshipType... types ) {
@@ -54,19 +43,19 @@ public class RestNode extends RestEntity implements Node {
             }
             path += type.name();
         }
-        return wrapRelationships( restRequest.get( path ) );
+        return restApi.wrapRelationships( restRequest.get( path ) );
     }
 
 
     public Iterable<Relationship> getRelationships( Direction direction ) {
-        return wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).shortName ) );
+        return restApi.wrapRelationships( restRequest.get( "relationships/" + RestDirection.from( direction ).shortName ) );
     }
 
     public Iterable<Relationship> getRelationships( RelationshipType type,
                                                     Direction direction ) {
         String relationshipsKey = RestDirection.from( direction ).longName + "_relationships";
         Object relationship = getStructuralData().get( relationshipsKey );
-        return wrapRelationships( restRequest.get( relationship + "/" + type.name() ) );
+        return restApi.wrapRelationships( restRequest.get( relationship + "/" + type.name() ) );
     }
 
     public Relationship getSingleRelationship( RelationshipType type,

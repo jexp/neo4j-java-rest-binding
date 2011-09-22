@@ -9,8 +9,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.6.1</slf4j.version>
-        <neo4j.version>1.4</neo4j.version>
+        <neo4j.version>1.4.1</neo4j.version>
         <jersey.version>1.4</jersey.version>
+        <blueprints.version>0.8</blueprints.version>
+        <gremlin.version>1.1</gremlin.version>
     </properties>
 
     <repositories>
@@ -100,8 +102,39 @@
             <version>6.1.25</version>
             <scope>test</scope>
         </dependency>
-
-         <dependency>
+        <dependency>
+            <groupId>org.neo4j.server.plugin</groupId>
+            <artifactId>neo4j-cypher-plugin</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.server.plugin</groupId>
+            <artifactId>neo4j-gremlin-plugin</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tinkerpop.blueprints</groupId>
+            <artifactId>blueprints-core</artifactId>
+            <version>${blueprints.version}</version>
+            <optional>true</optional>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tinkerpop.blueprints</groupId>
+            <artifactId>blueprints-neo4j-graph</artifactId>
+            <version>${blueprints.version}</version>
+            <optional>true</optional>
+            <scope>test</scope>
+        </dependency> 
+        <dependency>
+            <groupId>com.tinkerpop</groupId>
+            <artifactId>gremlin</artifactId>
+            <version>${gremlin.version}</version>
+            <optional>true</optional>
+        </dependency>        
+        <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-lucene-index</artifactId>
             <version>${neo4j.version}</version>

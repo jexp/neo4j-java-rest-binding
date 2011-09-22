@@ -1,7 +1,6 @@
 package org.neo4j.rest.graphdb;
 
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.helpers.collection.IterableWrapper;
@@ -14,23 +13,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class RestEntity implements PropertyContainer {
+public class RestEntity implements PropertyContainer, UpdatableRestResult {
     private Map<?, ?> structuralData;
     private Map<String, Object> propertyData;
     private long lastTimeFetchedPropertyData;
-    private RestAPI restApi;
+    protected RestAPI restApi;    
+   
    
 	protected RestRequest restRequest;
     private final ArrayConverter arrayConverter=new ArrayConverter();
 
     public RestEntity( URI uri, RestAPI restApi ) {
         this( uri.toString(), restApi );
-    }
+    }    
 
-    public RestEntity( String uri, RestAPI restApi ) {
-        this.restRequest = restApi.getRestRequest().with( uri );
-        this.restApi = restApi;
-    }
+    public RestEntity( String uri, RestAPI restApi ) {     
+        this.restRequest = restApi.getRestRequest().with( uri );        
+        this.restApi = restApi;       
+    }      
 
     public RestEntity( Map<?, ?> data, RestAPI restApi ) {
         this.structuralData = data;
@@ -41,23 +41,31 @@ public class RestEntity implements PropertyContainer {
         this.restRequest = restApi.getRestRequest().with( uri );
     }
 
-    public String getUri() {
-        return this.restRequest.getUri().toString();
+    public String getUri() {       
+        return this.restRequest.getUri();
+    }
+    
+    public void updateRestEntity(RestEntity updateEntity, RestAPI restApi){
+        this.restApi = restApi;
+        this.restRequest = restApi.getRestRequest().with(updateEntity.getUri());
+        this.structuralData = updateEntity.getStructuralData();
+        this.propertyData = updateEntity.getPropertyData();    
+        this.lastTimeFetchedPropertyData = System.currentTimeMillis();
     }
 
     Map<?, ?> getStructuralData() {
         if ( this.structuralData == null ) {
-            this.structuralData = restRequest.toMap( restRequest.get( "" ) );
+            this.structuralData = restRequest.get( "" ) .toMap();
         }
         return this.structuralData;
     }
 
     Map<String, Object> getPropertyData() {
-        if ( this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() ) ) {
+        if (hasToUpdateProperties()) {
         	RequestResult response = restRequest.get( "properties" );
-            boolean ok = restRequest.statusIs( response, Status.OK );
+            boolean ok = response.statusIs( Status.OK );
             if ( ok ) {
-                this.propertyData = (Map<String, Object>) restRequest.toMap( response );
+                this.propertyData = (Map<String, Object>) response.toMap(  );
             } else {
                 this.propertyData = Collections.emptyMap();
             }
@@ -66,12 +74,16 @@ public class RestEntity implements PropertyContainer {
         return this.propertyData;
     }
 
-    private boolean timeElapsed( long since, long isItGreaterThanThis ) {
+    private boolean hasToUpdateProperties() {
+        return this.propertyData == null || timeElapsed( this.lastTimeFetchedPropertyData, restApi.getPropertyRefetchTimeInMillis() );
+    }
+
+    private boolean timeElapsed( long since, long isItGreaterThanThis ) {       
         return System.currentTimeMillis() - since > isItGreaterThanThis;
     }
 
     public Object getProperty( String key ) {
-        Object value = getPropertyValue( key );
+        Object value = getPropertyValue(key);
         if ( value == null ) {
             throw new NotFoundException( "'" + key + "' on " + this );
         }
@@ -120,13 +132,13 @@ public class RestEntity implements PropertyContainer {
 
     public Object removeProperty( String key ) {
         Object value = getProperty( key, null );
-        restRequest.delete( "properties/" + key );
+        restRequest.delete("properties/" + key);
         invalidatePropertyData();
         return value;
     }
 
     public void setProperty( String key, Object value ) {
-        restRequest.put( "properties/" + key, JsonHelper.createJsonFrom( value ) );
+        restRequest.put( "properties/" + key, value);
         invalidatePropertyData();
     }
 
@@ -135,10 +147,10 @@ public class RestEntity implements PropertyContainer {
     }
 
     static long getEntityId( String uri ) {
-        return Long.parseLong( uri.substring( uri.lastIndexOf( '/' ) + 1 ) );
+        return Long.parseLong(uri.substring(uri.lastIndexOf('/') + 1));
     }
 
-    public long getId() {
+    public long getId() {        
         return getEntityId( getUri() );
     }
 
@@ -175,4 +187,9 @@ public class RestEntity implements PropertyContainer {
 		return restApi;
 	}
 
+
+    @Override
+    public void updateFrom(Object newValue, RestAPI restApi) {
+        updateRestEntity((RestEntity) newValue,restApi);
+    }
 }

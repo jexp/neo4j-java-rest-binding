@@ -18,7 +18,7 @@ public class GraphDatabaseFactory {
 
     public static GraphDatabaseService databaseFor(String url, String username, String password) {
         if (url.startsWith( "http://" ) || url.startsWith( "https://" )) {
-            return new RestGraphDatabase( toURI( url ), username,password );
+            return new RestGraphDatabase(  url , username,password );
         }
         String path=url;
         if (url.startsWith( "file:" )) {

@@ -1,12 +1,9 @@
 package org.neo4j.rest.graphdb;
 
 import org.neo4j.graphdb.*;
-import org.neo4j.helpers.collection.MapUtil;
-
-
-
 import java.net.URI;
 import java.util.Map;
+
 
 public class RestRelationship extends RestEntity implements Relationship {
 
@@ -16,8 +13,8 @@ public class RestRelationship extends RestEntity implements Relationship {
 
     RestRelationship( String uri, RestAPI restApi ) {
         super( uri, restApi );
-    }
-
+    }    
+  
     public RestRelationship( Map<?, ?> data, RestAPI restApi ) {
         super( data, restApi );
     }
@@ -63,20 +60,8 @@ public class RestRelationship extends RestEntity implements Relationship {
     }
     
     
-    public static RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
-        final RestRequest restRequest = startNode.getRestRequest();
-        Map<String, Object> data = MapUtil.map("to", endNode.getUri(), "type", type.name());
-        if (props!=null && props.size()>0) {
-            data.put("data",props);
-        }
-
-        RequestResult requestResult = restRequest.post( "relationships", JsonHelper.createJsonFrom( data ) );
-        if ( restRequest.statusOtherThan(requestResult, javax.ws.rs.core.Response.Status.CREATED ) ) {
-            final int status = requestResult.getStatus();
-            throw new RuntimeException( "" + status);
-        }
-        final URI location = requestResult.getLocation();
-        return new RestRelationship(location, startNode.getRestApi() );
+    public RestRelationship create(RestNode startNode, RestNode endNode, RelationshipType type, Map<String, Object> props) {
+       return this.restApi.createRelationship(startNode, endNode, type, props);
     }
    
 }
