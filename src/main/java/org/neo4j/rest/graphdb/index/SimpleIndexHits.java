@@ -3,8 +3,8 @@ package org.neo4j.rest.graphdb.index;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.rest.graphdb.RestAPI;
-import org.neo4j.rest.graphdb.RestEntityExtractor;
 import org.neo4j.rest.graphdb.UpdatableRestResult;
+import org.neo4j.rest.graphdb.converter.RestEntityExtractor;
 
 import java.util.Collection;
 import java.util.Iterator;

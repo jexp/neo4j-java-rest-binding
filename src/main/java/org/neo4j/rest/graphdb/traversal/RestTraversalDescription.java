@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.traversal;
 
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;

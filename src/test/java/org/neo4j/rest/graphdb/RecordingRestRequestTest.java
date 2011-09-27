@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.rest.graphdb.batch.RecordingRestRequest;
+import org.neo4j.rest.graphdb.batch.RestOperations;
 
 public class RecordingRestRequestTest {
     
@@ -23,7 +25,7 @@ public class RecordingRestRequestTest {
     @Test
     public void testCreate() {
         RecordingRestRequest testRequest = new RecordingRestRequest(exeRequest, new RestOperations());
-        assertEquals(this.baseUri, testRequest.baseUri);
+        assertEquals(this.baseUri, testRequest.getBaseUri());
         assertEquals(0, testRequest.getRecordedRequests().size());
         
     }

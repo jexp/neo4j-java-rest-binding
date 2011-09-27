@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.rest.graphdb.index.RestIndexManager;
+import org.neo4j.rest.graphdb.util.TestHelper;
 
 public class RestAPITest extends RestTestBase {
 	

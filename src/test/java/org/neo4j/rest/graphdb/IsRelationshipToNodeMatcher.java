@@ -4,6 +4,7 @@ import org.hamcrest.Description;
 import org.junit.internal.matchers.TypeSafeMatcher;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.rest.graphdb.util.TestHelper;
 
 /**
  * @author mh

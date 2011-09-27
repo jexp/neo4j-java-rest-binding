@@ -2,13 +2,8 @@ package org.neo4j.rest.graphdb;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Vector;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,7 +13,7 @@ import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.rest.graphdb.RestGremlinQueryEngine.RestQueryResult;
+import org.neo4j.rest.graphdb.query.RestGremlinQueryEngine;
 
 public class RestGremlinQueryEngineTest extends RestTestBase {
     private RestGremlinQueryEngine queryEngine;

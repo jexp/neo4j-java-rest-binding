@@ -6,8 +6,8 @@ import java.util.Map;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.rest.graphdb.NodePath;
-import org.neo4j.rest.graphdb.RelationshipPath;
+import org.neo4j.rest.graphdb.traversal.NodePath;
+import org.neo4j.rest.graphdb.traversal.RelationshipPath;
 
 
 public class DefaultConverter<T,R> implements ResultConverter<T,R> {

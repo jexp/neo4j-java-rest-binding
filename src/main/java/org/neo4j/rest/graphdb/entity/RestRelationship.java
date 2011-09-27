@@ -1,6 +1,8 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.entity;
 
 import org.neo4j.graphdb.*;
+import org.neo4j.rest.graphdb.RestAPI;
+
 import java.net.URI;
 import java.util.Map;
 
@@ -11,7 +13,7 @@ public class RestRelationship extends RestEntity implements Relationship {
         super( uri, restApi );
     }
 
-    RestRelationship( String uri, RestAPI restApi ) {
+    public RestRelationship( String uri, RestAPI restApi ) {
         super( uri, restApi );
     }    
   

@@ -6,6 +6,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.index.lucene.QueryContext;
 import org.neo4j.rest.graphdb.*;
+import org.neo4j.rest.graphdb.entity.RestEntity;
 
 /**
  * @author mh

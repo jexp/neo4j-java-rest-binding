@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.rest.graphdb.util.TestHelper;
 
 import java.util.Arrays;
 

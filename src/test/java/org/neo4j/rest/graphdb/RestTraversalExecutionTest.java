@@ -6,6 +6,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.rest.graphdb.traversal.RestTraversal;
 
 public class RestTraversalExecutionTest extends RestTestBase {
     @Test

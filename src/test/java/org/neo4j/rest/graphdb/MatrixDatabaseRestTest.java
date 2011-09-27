@@ -21,7 +21,8 @@ import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.helpers.Predicate;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.rest.graphdb.MatrixDataGraph.RelTypes;
-import org.neo4j.rest.graphdb.RestTraversalDescription.ScriptLanguage;
+import org.neo4j.rest.graphdb.traversal.RestTraversal;
+import org.neo4j.rest.graphdb.traversal.RestTraversalDescription.ScriptLanguage;
 
 public class MatrixDatabaseRestTest extends RestTestBase{
 	

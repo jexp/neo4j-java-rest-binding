@@ -8,6 +8,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.rest.graphdb.batch.BatchCallback;
+import org.neo4j.rest.graphdb.entity.RestRelationship;
+import org.neo4j.rest.graphdb.util.TestHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

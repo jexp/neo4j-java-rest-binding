@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.traversal;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
@@ -6,6 +6,9 @@ import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.helpers.Predicate;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.kernel.Uniqueness;
+import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.RestRequest;
+import org.neo4j.rest.graphdb.entity.RestNode;
 
 import javax.ws.rs.core.Response;
 import java.lang.reflect.Field;

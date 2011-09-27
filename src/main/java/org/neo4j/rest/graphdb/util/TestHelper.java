@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.util;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

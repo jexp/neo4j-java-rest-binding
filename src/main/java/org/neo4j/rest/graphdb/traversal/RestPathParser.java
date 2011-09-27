@@ -1,9 +1,12 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.traversal;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.helpers.collection.IterableWrapper;
+import org.neo4j.rest.graphdb.RestAPI;
+import org.neo4j.rest.graphdb.entity.RestNode;
+import org.neo4j.rest.graphdb.entity.RestRelationship;
 
 import java.util.Collection;
 import java.util.List;

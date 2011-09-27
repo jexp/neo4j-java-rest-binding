@@ -20,6 +20,7 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.rest.graphdb.MatrixDataGraph.RelTypes;
+import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 import org.neo4j.rest.graphdb.util.QueryResult;
 
 

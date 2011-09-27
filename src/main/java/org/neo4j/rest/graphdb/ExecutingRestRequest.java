@@ -9,6 +9,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import javax.ws.rs.core.MediaType;
 
 import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.util.JsonHelper;
 
 
 import java.io.UnsupportedEncodingException;

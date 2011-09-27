@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.query;
 
 import java.util.Map;
 

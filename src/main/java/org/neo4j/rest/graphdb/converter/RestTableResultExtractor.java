@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.converter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

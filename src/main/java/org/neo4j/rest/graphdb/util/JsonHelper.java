@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.util;
 
 /**
  * @author mh
@@ -7,6 +7,7 @@ package org.neo4j.rest.graphdb;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.neo4j.rest.graphdb.PropertiesMap;
 
 import java.io.IOException;
 import java.io.StringWriter;

@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.kernel.Uniqueness;
+import org.neo4j.rest.graphdb.traversal.RestTraversal;
+import org.neo4j.rest.graphdb.traversal.RestTraversalDescription;
 
 import java.util.Map;
 

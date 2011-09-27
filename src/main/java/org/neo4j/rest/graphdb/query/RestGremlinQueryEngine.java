@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.query;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -6,9 +6,16 @@ import java.util.Map;
 
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.RestAPI;
+import org.neo4j.rest.graphdb.RestRequest;
+import org.neo4j.rest.graphdb.RestResultException;
+import org.neo4j.rest.graphdb.converter.RestEntityExtractor;
+import org.neo4j.rest.graphdb.converter.RestTableResultExtractor;
 import org.neo4j.rest.graphdb.util.ConvertedResult;
 import org.neo4j.rest.graphdb.util.DefaultConverter;
 import org.neo4j.rest.graphdb.util.Handler;
+import org.neo4j.rest.graphdb.util.JsonHelper;
 import org.neo4j.rest.graphdb.util.QueryResult;
 import org.neo4j.rest.graphdb.util.QueryResultBuilder;
 import org.neo4j.rest.graphdb.util.ResultConverter;
@@ -55,7 +62,7 @@ public class RestGremlinQueryEngine implements QueryEngine<Object> {
         throw new RestResultException(Collections.singletonMap("exception", result.toString()));
     }
 
-    static class RestQueryResult<T> implements QueryResult<T> {
+    public static class RestQueryResult<T> implements QueryResult<T> {
         QueryResultBuilder<T> result;
         private final RestAPI restApi;
 

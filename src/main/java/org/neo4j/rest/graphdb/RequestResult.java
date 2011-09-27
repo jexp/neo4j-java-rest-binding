@@ -16,7 +16,9 @@
 package org.neo4j.rest.graphdb;
 
 import com.sun.jersey.api.client.ClientResponse;
-import org.neo4j.rest.graphdb.RestOperations.RestOperation;
+
+import org.neo4j.rest.graphdb.batch.RestOperations.RestOperation;
+import org.neo4j.rest.graphdb.util.JsonHelper;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;

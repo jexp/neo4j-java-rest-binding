@@ -1,4 +1,4 @@
-package org.neo4j.rest.graphdb;
+package org.neo4j.rest.graphdb.batch;
 
 
 import java.io.UnsupportedEncodingException;
@@ -7,14 +7,16 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import org.neo4j.rest.graphdb.RestOperations.RestOperation;
-import org.neo4j.rest.graphdb.RestOperations.RestOperation.Methods;
+import org.neo4j.rest.graphdb.RequestResult;
+import org.neo4j.rest.graphdb.RestRequest;
+import org.neo4j.rest.graphdb.batch.RestOperations.RestOperation;
+import org.neo4j.rest.graphdb.batch.RestOperations.RestOperation.Methods;
 
 
 
 public class RecordingRestRequest implements RestRequest {    
   
-    protected final String baseUri;   
+    private final String baseUri;   
     private MediaType contentType;
     private MediaType acceptHeader;   
     private RestRequest restRequest;
@@ -45,22 +47,22 @@ public class RecordingRestRequest implements RestRequest {
 
     @Override
     public RequestResult get(String path, Object data) {
-       return this.record(Methods.GET, path, data, baseUri);
+       return this.record(Methods.GET, path, data, getBaseUri());
     }
 
     @Override
     public RequestResult delete(String path) {
-        return this.record(Methods.DELETE, path, null, baseUri);
+        return this.record(Methods.DELETE, path, null, getBaseUri());
     }
 
     @Override
     public RequestResult post(String path, Object data) {       
-        return this.record(Methods.POST, path, data, baseUri);
+        return this.record(Methods.POST, path, data, getBaseUri());
     }
 
     @Override
     public RequestResult put(String path, Object data) {
-        return this.record(Methods.PUT, path, data, baseUri);
+        return this.record(Methods.PUT, path, data, getBaseUri());
         
     }
 
@@ -71,12 +73,12 @@ public class RecordingRestRequest implements RestRequest {
 
     @Override
     public String getUri() {
-        return baseUri;
+        return getBaseUri();
     }
 
     @Override
     public RequestResult get(String path) {
-        return this.record(Methods.GET, path, null, baseUri);
+        return this.record(Methods.GET, path, null, getBaseUri());
     }    
     
     public RequestResult record(Methods method, String path, Object data, String baseUri){
@@ -107,6 +109,10 @@ public class RecordingRestRequest implements RestRequest {
 
     public void stop() {
         this.stop = true;
+    }
+
+    public String getBaseUri() {
+        return baseUri;
     }
 }
 

@@ -3,6 +3,7 @@ package org.neo4j.rest.graphdb;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
+import org.neo4j.rest.graphdb.util.TestHelper;
 
 import java.util.Date;
 
