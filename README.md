@@ -1,3 +1,6 @@
+This repository has been deprecated, it has moved to the Neo4j organization.
+[Neo4j Github Repositories](http://github.com/neo4j/neo4j-java-rest-binding)
+
 The Java binding for the Neo4j Server REST API wraps the REST calls behind the well known
 [GraphDatabaseService](http://api.neo4j.org/1.2/org/neo4j/graphdb/GraphDatabaseService.html) API.
 
