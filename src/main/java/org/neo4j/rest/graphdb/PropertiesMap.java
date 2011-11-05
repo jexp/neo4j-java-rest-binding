@@ -75,16 +75,17 @@ public class PropertiesMap {
         if ( value == null ) {
             throw new RuntimeException( "null value not supported" );
         }
-
-        if ( value instanceof String ) {
-        } else if ( value instanceof Number ) {
-        } else if ( value instanceof Boolean ) {
-        } else {
-            throw new RuntimeException( "Unsupported value type " + value.getClass() + "." +
-                    " Supported value types are all java primitives (byte, char, short, int, " +
-                    "long, float, double) and String, as well as arrays of all those types" );
+        final Class<?> type = value.getClass();
+        if (isSupportedType(type) || type.isArray() && isSupportedType(type.getComponentType())) {
+            return value;
         }
-        return value;
+        throw new RuntimeException( "Unsupported value type " + type + "." +
+                " Supported value types are all java primitives (byte, char, short, int, " +
+                "long, float, double) and String, as well as arrays of all those types" );
+    }
+
+    private static boolean isSupportedType(Class<? extends Object> type) {
+        return type.isPrimitive() || String.class.isAssignableFrom(type) || Number.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type);
     }
 
     private static Boolean[] booleanArray( List<Boolean> list ) {

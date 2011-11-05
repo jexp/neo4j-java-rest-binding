@@ -10,7 +10,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
@@ -18,7 +17,7 @@ public class RestTestBase {
 
     private GraphDatabaseService restGraphDb;
     private static final String HOSTNAME = "localhost";
-    private static final int PORT = 7474;
+    private static final int PORT = 7473;
     private static LocalTestServer neoServer = new LocalTestServer(HOSTNAME,PORT).withPropertiesFile("neo4j-server.properties");
     private static final String SERVER_ROOT_URI = "http://" + HOSTNAME + ":" + PORT + "/db/data/";
     private static final String SERVER_CLEANDB_URI = "http://" + HOSTNAME + ":" + PORT + "/cleandb/secret-key";
