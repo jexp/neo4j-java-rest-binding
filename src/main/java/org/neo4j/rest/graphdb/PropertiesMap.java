@@ -84,7 +84,7 @@ public class PropertiesMap {
                 "long, float, double) and String, as well as arrays of all those types" );
     }
 
-    private static boolean isSupportedType(Class<? extends Object> type) {
+    private static boolean isSupportedType(Class<?> type) {
         return type.isPrimitive() || String.class.isAssignableFrom(type) || Number.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type);
     }
 
